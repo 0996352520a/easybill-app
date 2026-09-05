@@ -32,7 +32,7 @@
 <body class="bg-gray-100 min-h-screen text-gray-800">
     <div id="app" class="max-w-6xl mx-auto p-4 md:p-6">
         
-        <!-- เมนูหลัก (จะซ่อนปุ่มเมนูอื่นๆ อัตโนมัติถ้าเปิดในโหมดหน้าต่างแยก) -->
+        <!-- เมนูหลัก -->
         <div v-if="!isStandaloneDashboard" class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
             <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">☁️ Cloud</span></h1>
             
@@ -149,7 +149,8 @@
                                     'text-teal-600 bg-teal-50 px-2 py-1 rounded': log.type === 'ออกบิล',
                                     'text-blue-600 bg-blue-50 px-2 py-1 rounded': log.type === 'เพิ่มสินค้า',
                                     'text-yellow-600 bg-yellow-50 px-2 py-1 rounded': log.type === 'แก้ไขสินค้า',
-                                    'text-red-600 bg-red-50 px-2 py-1 rounded': log.type === 'ลบข้อมูล'
+                                    'text-red-600 bg-red-50 px-2 py-1 rounded': log.type === 'ลบข้อมูล',
+                                    'text-gray-600 bg-gray-200 px-2 py-1 rounded': log.type === 'ตั้งค่า'
                                 }">{{ log.type }}</span>
                             </td>
                             <td class="p-3 text-gray-700">{{ log.detail }}</td>
@@ -170,6 +171,10 @@
                     <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลัง</h2>
                     <p class="text-sm text-gray-500">วันที่: {{ currentDate }} (ออกบิลไปแล้ว {{ todayBills.length }} ใบ)</p>
                 </div>
+                <!-- ✅ เพิ่มปุ่มพิมพ์รายงานไว้ที่หน้านี้ด้วย -->
+                <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md w-full md:w-auto">
+                    🖨️ พิมพ์รายงานยอดขายวันนี้
+                </button>
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
@@ -432,7 +437,6 @@
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
 
-        // ตรวจสอบโหมดเปิดหน้าต่างแยก (Standalone Dashboard)
         const urlParams = new URLSearchParams(window.location.search);
         const isStandalone = urlParams.get('view') === 'dashboard';
 
@@ -527,11 +531,11 @@
 
                 getDeviceInfo() {
                     const ua = navigator.userAgent;
-                    if (/android/i.test(ua)) return 'Android Device';
-                    if (/iphone|ipad|ipod/i.test(ua)) return 'iOS (iPhone/iPad)';
-                    if (/windows/i.test(ua)) return 'Windows PC/Laptop';
-                    if (/mac/i.test(ua)) return 'Mac / MacBook';
-                    return 'Mobile / Other Device';
+                    if (/android/i.test(ua)) return 'Android';
+                    if (/iphone|ipad|ipod/i.test(ua)) return 'iOS';
+                    if (/windows/i.test(ua)) return 'Windows PC';
+                    if (/mac/i.test(ua)) return 'Mac';
+                    return 'Other';
                 },
 
                 async logActivity(type, detail) {
@@ -543,7 +547,14 @@
                 },
 
                 async clearLogs() {
-                    if (!confirm("คุณต้องการล้างประวัติกิจกรรมทั้งหมดใช่หรือไม่?")) return;
+                    const pin = prompt("กรุณาใส่รหัสผ่านเพื่อยืนยันการล้างประวัติทั้งหมด (รหัส: 1234):");
+                    if (pin === null) return;
+                    if (pin !== '1234') {
+                        alert("รหัสผ่านไม่ถูกต้อง! ยกเลิกการล้างประวัติ");
+                        return;
+                    }
+
+                    if (!confirm("คุณแน่ใจหรือไม่ที่จะล้างประวัติกิจกรรมทั้งหมด?")) return;
                     for (const log of this.activityLogs) {
                         await deleteDoc(doc(db, "logs", log.id));
                     }
