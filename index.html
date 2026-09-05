@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyBill - ระบบออกใบเสร็จ (รองรับ A4 & Slip 57mm)</title>
+    <title>EasyBill - ระบบออกใบเสร็จและตัดสต็อก</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
@@ -84,43 +84,99 @@
             </div>
         </div>
 
-        <!-- หน้าคลังสินค้า -->
-        <div v-show="currentTab === 'products'" class="no-print bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">📦 คลังสินค้าและหมวดหมู่</h2>
+        <!-- หน้าคลังสินค้า (ปรับปรุงใหม่) -->
+        <div v-show="currentTab === 'products'" class="no-print space-y-6">
             
-            <div class="flex flex-col md:flex-row gap-3 mb-6 bg-gray-50 p-4 rounded-lg border" :class="editingProductId ? 'border-blue-400 bg-blue-50' : ''">
-                <input v-model="newProduct.category" list="category-list" type="text" placeholder="หมวดหมู่" class="w-full md:w-48 border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                <datalist id="category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist>
-                <input v-model="newProduct.name" type="text" placeholder="ชื่อสินค้า" class="flex-1 border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                <input v-model.number="newProduct.price" type="number" placeholder="ราคา/หน่วย" class="w-full md:w-32 border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                <input v-model.number="newProduct.stock" type="number" placeholder="สต็อก" class="w-full md:w-24 border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                
-                <!-- สลับปุ่ม เพิ่ม / อัปเดต -->
-                <button v-if="!editingProductId" @click="saveProduct" class="bg-teal-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-600">+ เพิ่ม</button>
-                <div v-else class="flex gap-2 w-full md:w-auto">
-                    <button @click="saveProduct" class="bg-blue-500 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-600 flex-1">💾 อัปเดต</button>
-                    <button @click="cancelEdit" class="bg-gray-400 text-white px-4 py-3 rounded-lg font-semibold hover:bg-gray-500 flex-1">ยกเลิก</button>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- แผงซ้าย: อัปเดตสต็อก/ราคา ด่วน -->
+                <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-100">
+                    <h3 class="font-bold text-blue-800 text-lg mb-4">⚡ อัปเดตข้อมูลสินค้าเดิม</h3>
+                    <div class="space-y-4">
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <select v-model="quickEdit.category" @change="quickEdit.productId = ''" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 bg-white">
+                                <option value="">-- 1. เลือกหมวดหมู่ --</option>
+                                <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
+                            </select>
+                            <select v-model="quickEdit.productId" @change="loadQuickEditProduct" :disabled="!quickEdit.category" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 bg-white disabled:bg-gray-100">
+                                <option value="">-- 2. เลือกสินค้า --</option>
+                                <option v-for="p in products.filter(x => (x.category || 'ทั่วไป') === quickEdit.category)" :value="p.id">{{ p.name }}</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-3" v-if="quickEdit.productId">
+                            <div class="flex-1">
+                                <label class="text-xs text-blue-700 font-medium mb-1 block">ราคาขายใหม่ (฿)</label>
+                                <input v-model.number="quickEdit.price" type="number" class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-xs text-blue-700 font-medium mb-1 block">สต็อกคงเหลือทั้งหมด</label>
+                                <input v-model.number="quickEdit.stock" type="number" class="w-full border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700">
+                            </div>
+                        </div>
+                        <button v-if="quickEdit.productId" @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-sm">
+                            💾 บันทึกการอัปเดต
+                        </button>
+                    </div>
+                </div>
+
+                <!-- แผงขวา: เพิ่มสินค้าใหม่ -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-gray-700 text-lg mb-4">➕ เพิ่มสินค้าใหม่เข้าคลัง</h3>
+                    <div class="space-y-4">
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input v-model="newProduct.category" list="category-list" type="text" placeholder="พิมพ์หมวดหมู่ หรือเลือกที่มี" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50">
+                            <datalist id="category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist>
+                            <input v-model="newProduct.name" type="text" placeholder="ชื่อสินค้าใหม่" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50">
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input v-model.number="newProduct.price" type="number" placeholder="ราคาตั้งขาย (฿)" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50">
+                            <input v-model.number="newProduct.stock" type="number" placeholder="สต็อกเริ่มต้น" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50">
+                        </div>
+                        <button @click="addProduct" class="w-full bg-teal-500 text-white py-3 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm">
+                            + บันทึกสินค้าใหม่
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <table class="w-full text-left border-collapse bg-white min-w-[600px]">
-                <thead>
-                    <tr class="bg-gray-100 text-gray-600">
-                        <th class="p-3">หมวดหมู่</th><th class="p-3">ชื่อสินค้า</th><th class="p-3 text-right">ราคา</th><th class="p-3 text-center">คงเหลือ</th><th class="p-3 text-center">จัดการ</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="prod in products" :key="prod.id" class="border-b" :class="editingProductId === prod.id ? 'bg-blue-50' : ''">
-                        <td class="p-3 text-sm text-teal-600 font-medium">{{ prod.category || 'ทั่วไป' }}</td>
-                        <td class="p-3">{{ prod.name }}</td><td class="p-3 text-right">{{ prod.price.toLocaleString() }} ฿</td>
-                        <td class="p-3 text-center"><span :class="prod.stock <= 5 ? 'text-red-500 font-bold' : 'text-green-600 font-bold'">{{ prod.stock }}</span></td>
-                        <td class="p-3 text-center">
-                            <button @click="editProduct(prod)" class="text-blue-500 hover:text-blue-700 font-bold mr-3">แก้ไข</button>
-                            <button @click="deleteProduct(prod.id)" class="text-red-400 hover:text-red-600 font-bold">ลบ</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <!-- ตารางคลังสินค้า และ ตัวกรองหมวดหมู่ -->
+            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                <div class="flex justify-between items-end mb-4">
+                    <h3 class="font-bold text-gray-700 text-lg">📋 รายการสินค้าทั้งหมด</h3>
+                </div>
+                
+                <div class="flex gap-2 overflow-x-auto mb-4 pb-2 hide-scroll" v-if="uniqueCategoriesList.length > 0">
+                    <button @click="inventoryCategory = 'ทั้งหมด'" :class="inventoryCategory === 'ทั้งหมด' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition">ทั้งหมด</button>
+                    <button v-for="cat in uniqueCategoriesList" :key="cat" @click="inventoryCategory = cat" :class="inventoryCategory === cat ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition">{{ cat }}</button>
+                </div>
+
+                <table class="w-full text-left border-collapse min-w-[600px] border border-gray-100 rounded-lg">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600">
+                            <th class="p-3">หมวดหมู่</th><th class="p-3">ชื่อสินค้า</th><th class="p-3 text-right">ราคา</th><th class="p-3 text-center">ปรับสต็อกด่วน</th><th class="p-3 text-center">ลบ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="prod in filteredInventory" :key="prod.id" class="border-b hover:bg-gray-50">
+                            <td class="p-3 text-sm text-teal-600 font-medium">{{ prod.category || 'ทั่วไป' }}</td>
+                            <td class="p-3">{{ prod.name }}</td>
+                            <td class="p-3 text-right">{{ prod.price.toLocaleString() }} ฿</td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button @click="quickAdjustStock(prod.id, -1)" class="w-7 h-7 bg-red-100 text-red-600 rounded flex items-center justify-center font-bold hover:bg-red-200 transition">-</button>
+                                    <span class="w-10 text-center font-bold text-lg" :class="prod.stock <= 5 ? 'text-red-500' : 'text-green-600'">{{ prod.stock }}</span>
+                                    <button @click="quickAdjustStock(prod.id, 1)" class="w-7 h-7 bg-green-100 text-green-600 rounded flex items-center justify-center font-bold hover:bg-green-200 transition">+</button>
+                                </div>
+                            </td>
+                            <td class="p-3 text-center">
+                                <button @click="deleteProduct(prod.id)" class="text-red-400 hover:text-red-600 font-bold bg-red-50 px-2 py-1 rounded">ลบ</button>
+                            </td>
+                        </tr>
+                        <tr v-if="filteredInventory.length === 0">
+                            <td colspan="5" class="p-6 text-center text-gray-400">ไม่พบสินค้าในหมวดหมู่นี้</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- หน้าตั้งค่าร้านค้า -->
@@ -280,8 +336,9 @@
                     currentTab: 'create',
                     shop: { name: '', address: '', paperSize: 'a4' },
                     products: [], bills: [],
-                    newProduct: { category: 'ทั่วไป', name: '', price: '', stock: 0 },
-                    editingProductId: null, // ตัวแปรสำหรับเช็คว่ากำลังแก้ไขสินค้าชิ้นไหน
+                    newProduct: { category: '', name: '', price: '', stock: '' },
+                    quickEdit: { category: '', productId: '', price: '', stock: '' }, // ข้อมูลสำหรับแผงอัปเดตด่วน
+                    inventoryCategory: 'ทั้งหมด', // หมวดหมู่สำหรับกรองในตารางคลังสินค้า
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [] },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     selectedCategory: 'ทั้งหมด', printTarget: 'create', viewingBill: null
@@ -292,8 +349,11 @@
                 totalAmount() { return this.bill.items.reduce((sum, item) => sum + (item.price * item.qty), 0); },
                 todayBills() { return this.bills.filter(b => new Date(b.timestamp).toLocaleDateString('th-TH') === new Date().toLocaleDateString('th-TH')); },
                 todayTotal() { return this.todayBills.reduce((sum, b) => sum + b.total, 0); },
+                
                 uniqueCategoriesList() { return [...new Set(this.products.map(p => p.category || 'ทั่วไป'))]; },
-                filteredProducts() { return this.selectedCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.selectedCategory); }
+                filteredProducts() { return this.selectedCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.selectedCategory); },
+                // ตัวกรองสำหรับตารางในหน้า "คลังสินค้า"
+                filteredInventory() { return this.inventoryCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.inventoryCategory); }
             },
             mounted() {
                 onSnapshot(doc(db, "settings", "shopInfo"), (docSnap) => { 
@@ -310,40 +370,39 @@
             methods: {
                 saveShopData() { setDoc(doc(db, "settings", "shopInfo"), this.shop).then(() => alert('บันทึกตั้งค่าสำเร็จ!')); },
                 
-                // เริ่มแก้ไขสินค้า
-                editProduct(prod) {
-                    this.editingProductId = prod.id;
-                    this.newProduct = { category: prod.category || 'ทั่วไป', name: prod.name, price: prod.price, stock: prod.stock };
-                    window.scrollTo({ top: 0, behavior: 'smooth' }); // เลื่อนจอกลับไปด้านบน
-                },
-                // ยกเลิกการแก้ไข
-                cancelEdit() {
-                    this.editingProductId = null;
-                    this.newProduct = { category: 'ทั่วไป', name: '', price: '', stock: 0 };
-                },
-                // บันทึกการเพิ่มหรือแก้ไขสินค้า
-                async saveProduct() {
-                    if (!this.newProduct.name || !this.newProduct.price) return;
+                // ---- การจัดการคลังสินค้า (เพิ่ม, ลบ, อัปเดตด่วน) ----
+                addProduct() {
+                    if (!this.newProduct.name || !this.newProduct.price) return alert("กรุณาใส่ชื่อและราคาสินค้า");
                     const prodCategory = this.newProduct.category.trim() || 'ทั่วไป';
-                    
-                    if (this.editingProductId) {
-                        // อัปเดตของเดิม
-                        await updateDoc(doc(db, "products", this.editingProductId), { 
-                            category: prodCategory, name: this.newProduct.name, 
-                            price: this.newProduct.price, stock: this.newProduct.stock 
-                        });
-                        this.editingProductId = null;
-                    } else {
-                        // เพิ่มของใหม่
-                        await addDoc(collection(db, "products"), { 
-                            category: prodCategory, name: this.newProduct.name, 
-                            price: this.newProduct.price, stock: this.newProduct.stock 
-                        });
-                    }
-                    this.newProduct = { category: 'ทั่วไป', name: '', price: '', stock: 0 };
+                    addDoc(collection(db, "products"), { category: prodCategory, name: this.newProduct.name, price: Number(this.newProduct.price), stock: Number(this.newProduct.stock || 0) });
+                    this.newProduct = { category: '', name: '', price: '', stock: '' };
                 },
                 deleteProduct(id) { if(confirm('ลบสินค้านี้?')) deleteDoc(doc(db, "products", id)); },
                 
+                // ดึงข้อมูลเมื่อเลือกสินค้าในแผง Quick Edit
+                loadQuickEditProduct() {
+                    if(!this.quickEdit.productId) return;
+                    const p = this.products.find(x => x.id === this.quickEdit.productId);
+                    if(p) { this.quickEdit.price = p.price; this.quickEdit.stock = p.stock; }
+                },
+                // บันทึกจากแผง Quick Edit
+                async saveQuickEdit() {
+                    if(!this.quickEdit.productId) return;
+                    await updateDoc(doc(db, "products", this.quickEdit.productId), { price: Number(this.quickEdit.price), stock: Number(this.quickEdit.stock) });
+                    alert('อัปเดตข้อมูลสำเร็จ!');
+                    this.quickEdit = { category: '', productId: '', price: '', stock: '' }; // ล้างฟอร์ม
+                },
+                // ปรับสต็อกผ่านปุ่ม +/- ในตารางโดยตรง
+                async quickAdjustStock(id, amount) {
+                    const prodDb = this.products.find(p => p.id === id);
+                    if (prodDb) {
+                        const newStock = prodDb.stock + amount;
+                        if (newStock < 0) return; // กันสต็อกติดลบ
+                        await updateDoc(doc(db, "products", id), { stock: newStock });
+                    }
+                },
+
+                // ---- การออกบิล ----
                 addProductToBill(prod) {
                     if(prod.stock <= 0) return alert('สินค้าหมดสต็อกครับ!');
                     const exist = this.bill.items.find(i => i.id === prod.id);
