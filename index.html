@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyBill - ระบบออกใบเสร็จและคลังสินค้า</title>
+    <title>EasyBill - ระบบออกใบเสร็จและบันทึกกิจกรรม</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
@@ -36,7 +36,56 @@
             <button @click="currentTab = 'create'" :class="currentTab === 'create' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">สร้างบิล</button>
             <button @click="currentTab = 'products'" :class="currentTab === 'products' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">คลังสินค้า</button>
             <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ประวัติการขาย</button>
+            <button @click="currentTab = 'logs'" :class="currentTab === 'logs' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">📋 ประวัติกิจกรรม</button>
             <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
+        </div>
+
+        <!-- หน้าประวัติกิจกรรม (Activity Logs) -->
+        <div v-show="currentTab === 'logs'" class="no-print space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-700">📋 บันทึกประวัติกิจกรรม (Activity Log)</h2>
+                    <p class="text-sm text-gray-500">ตรวจสอบการทำงาน ย้อนหลังว่าทำรายการจากอุปกรณ์ใด เวลาไหน</p>
+                </div>
+                <button @click="clearLogs" class="bg-gray-100 hover:bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium transition">
+                    🗑️ ล้างประวัติทั้งหมด
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600">
+                            <th class="p-3">เวลาที่ทำรายการ</th>
+                            <th class="p-3">ประเภทกิจกรรม</th>
+                            <th class="p-3">รายละเอียด</th>
+                            <th class="p-3">อุปกรณ์ที่ใช้</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="log in activityLogs" :key="log.id" class="border-b hover:bg-gray-50 text-sm">
+                            <td class="p-3 text-gray-500 whitespace-nowrap">{{ new Date(log.timestamp).toLocaleString('th-TH') }}</td>
+                            <td class="p-3 font-semibold">
+                                <span :class="{
+                                    'text-teal-600 bg-teal-50 px-2 py-1 rounded': log.type === 'ออกบิล',
+                                    'text-blue-600 bg-blue-50 px-2 py-1 rounded': log.type === 'เพิ่มสินค้า',
+                                    'text-yellow-600 bg-yellow-50 px-2 py-1 rounded': log.type === 'แก้ไขสินค้า',
+                                    'text-red-600 bg-red-50 px-2 py-1 rounded': log.type === 'ลบข้อมูล'
+                                }">{{ log.type }}</span>
+                            </td>
+                            <td class="p-3 text-gray-700">{{ log.detail }}</td>
+                            <td class="p-3">
+                                <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs font-mono">
+                                    {{ log.device }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr v-if="activityLogs.length === 0">
+                            <td colspan="4" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ยังไม่มีบันทึกกิจกรรม</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- หน้าประวัติการขาย -->
@@ -318,9 +367,9 @@
         createApp({
             data() {
                 return {
-                    currentTab: 'create', // กลับมาเปิดหน้าสร้างบิลเป็นหน้าแรก
+                    currentTab: 'create',
                     shop: { name: '', address: '', paperSize: 'a4' },
-                    products: [], bills: [],
+                    products: [], bills: [], activityLogs: [],
                     newProduct: { category: '', name: '', price: '', stock: '' },
                     quickEdit: { category: '', productId: '', price: '', stock: '' },
                     inventoryCategory: 'ทั้งหมด',
@@ -350,42 +399,115 @@
                     const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
                     this.bills = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 });
+                // ดึงข้อมูล Activity Logs แบบเรียลไทม์
+                onSnapshot(collection(db, "logs"), (snapshot) => {
+                    const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+                    this.activityLogs = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                });
             },
             methods: {
-                saveShopData() { setDoc(doc(db, "settings", "shopInfo"), this.shop).then(() => alert('บันทึกตั้งค่าสำเร็จ!')); },
+                // ฟังก์ชันตรวจสอบชนิดอุปกรณ์ที่ใช้งาน
+                getDeviceInfo() {
+                    const ua = navigator.userAgent;
+                    if (/android/i.test(ua)) return 'Android Device';
+                    if (/iphone|ipad|ipod/i.test(ua)) return 'iOS (iPhone/iPad)';
+                    if (/windows/i.test(ua)) return 'Windows PC/Laptop';
+                    if (/mac/i.test(ua)) return 'Mac / MacBook';
+                    return 'Mobile / Other Device';
+                },
+
+                // ฟังก์ชันบันทึก Activity Log ขึ้น Cloud
+                async logActivity(type, detail) {
+                    try {
+                        await addDoc(collection(db, "logs"), {
+                            type: type,
+                            detail: detail,
+                            device: this.getDeviceInfo(),
+                            timestamp: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.error("Log error: ", e);
+                    }
+                },
+
+                // ล้างประวัติกิจกรรมทั้งหมด
+                async clearLogs() {
+                    const pin = confirm("คุณต้องการล้างประวัติกิจกรรมทั้งหมดใช่หรือไม่?");
+                    if (!pin) return;
+                    for (const log of this.activityLogs) {
+                        await deleteDoc(doc(db, "logs", log.id));
+                    }
+                    alert("ล้างประวัติเรียบร้อยแล้ว");
+                },
+
+                saveShopData() { 
+                    setDoc(doc(db, "settings", "shopInfo"), this.shop).then(() => {
+                        alert('บันทึกตั้งค่าสำเร็จ!');
+                        this.logActivity('ตั้งค่า', 'อัปเดตข้อมูลร้านค้าและรูปแบบกระดาษ');
+                    }); 
+                },
                 
                 syncCategoryFilter() {
                     this.quickEdit.productId = '';
                     this.inventoryCategory = this.quickEdit.category ? this.quickEdit.category : 'ทั้งหมด';
                 },
 
-                addProduct() {
+                async addProduct() {
                     if (!this.newProduct.name || !this.newProduct.price) return alert("กรุณาใส่ชื่อและราคาสินค้า");
                     const prodCategory = this.newProduct.category.trim() || 'ทั่วไป';
-                    addDoc(collection(db, "products"), { category: prodCategory, name: this.newProduct.name, price: Number(this.newProduct.price), stock: Number(this.newProduct.stock || 0) });
+                    
+                    await addDoc(collection(db, "products"), { 
+                        category: prodCategory, 
+                        name: this.newProduct.name, 
+                        price: Number(this.newProduct.price), 
+                        stock: Number(this.newProduct.stock || 0) 
+                    });
+
+                    // บันทึก Log
+                    this.logActivity('เพิ่มสินค้า', `เพิ่มสินค้า "${this.newProduct.name}" (${prodCategory}) ราคา ${this.newProduct.price} ฿`);
+
                     this.inventoryCategory = prodCategory; 
                     this.newProduct = { category: prodCategory, name: '', price: '', stock: '' }; 
                 },
-                deleteProduct(id) { if(confirm('ลบสินค้านี้?')) deleteDoc(doc(db, "products", id)); },
+
+                async deleteProduct(id) { 
+                    if(!confirm('ลบสินค้านี้?')) return;
+                    const prod = this.products.find(p => p.id === id);
+                    await deleteDoc(doc(db, "products", id));
+                    if(prod) this.logActivity('ลบข้อมูล', `ลบสินค้า "${prod.name}" ออกจากคลัง`);
+                },
                 
                 loadQuickEditProduct() {
                     if(!this.quickEdit.productId) return;
                     const p = this.products.find(x => x.id === this.quickEdit.productId);
                     if(p) { this.quickEdit.price = p.price; this.quickEdit.stock = p.stock; }
                 },
+
                 async saveQuickEdit() {
                     if(!this.quickEdit.productId) return;
-                    await updateDoc(doc(db, "products", this.quickEdit.productId), { price: Number(this.quickEdit.price), stock: Number(this.quickEdit.stock) });
+                    const prod = this.products.find(x => x.id === this.quickEdit.productId);
+                    
+                    await updateDoc(doc(db, "products", this.quickEdit.productId), { 
+                        price: Number(this.quickEdit.price), 
+                        stock: Number(this.quickEdit.stock) 
+                    });
+
+                    if(prod) {
+                        this.logActivity('แก้ไขสินค้า', `อัปเดต "${prod.name}" | ราคา: ${this.quickEdit.price} ฿, สต็อก: ${this.quickEdit.stock}`);
+                    }
+
                     alert('อัปเดตข้อมูลสำเร็จ!');
                     this.quickEdit = { category: '', productId: '', price: '', stock: '' }; 
                     this.inventoryCategory = 'ทั้งหมด';
                 },
+
                 async quickAdjustStock(id, amount) {
                     const prodDb = this.products.find(p => p.id === id);
                     if (prodDb) {
                         const newStock = prodDb.stock + amount;
                         if (newStock < 0) return;
                         await updateDoc(doc(db, "products", id), { stock: newStock });
+                        this.logActivity('แก้ไขสินค้า', `ปรับสต็อกด่วน "${prodDb.name}" เป็น ${newStock} ชิ้น`);
                     }
                 },
 
@@ -421,6 +543,9 @@
                         }
                     }
 
+                    // บันทึก Log การออกบิล
+                    this.logActivity('ออกบิล', `ออกบิล INV-${this.billNumber} (${this.bill.type}) ยอดรวม ${this.totalAmount.toLocaleString()} บาท`);
+
                     this.printTarget = 'create';
                     window.print();
                     setTimeout(() => {
@@ -428,23 +553,19 @@
                     }, 1000);
                 },
 
-                // ฟังก์ชันจัดการ การลบ และ แก้ไขบิล
                 async processBillAction(billData, action) {
-                    // 1. ถามรหัสผ่าน
                     const actionName = action === 'edit' ? 'แก้ไข' : 'ลบ';
-                    const pin = prompt(`กรุณาใส่รหัสผ่านเพื่อยืนยันการ${actionName}บิลนี้:`);
+                    const pin = prompt(`กรุณาใส่รหัสผ่านเพื่อยืนยันการ${actionName}บิลนี้ (รหัส: 1234):`);
                     
-                    if (pin === null) return; // กรณีกดยกเลิกใน prompt
+                    if (pin === null) return;
                     if (pin !== '1234') {
                         alert('รหัสผ่านไม่ถูกต้อง! ยกเลิกการทำรายการ');
                         return;
                     }
 
-                    // 2. ยืนยันอีกครั้ง
                     if (!confirm(`คุณแน่ใจหรือไม่? ระบบจะดึงสินค้าในบิลกลับคืนสู่คลังอัตโนมัติ`)) return;
 
                     try {
-                        // 3. คืนสต็อกกลับเข้าไปในฐานข้อมูล
                         for (const item of billData.items) {
                             if (item.id) {
                                 const prodDb = this.products.find(p => p.id === item.id);
@@ -454,19 +575,18 @@
                             }
                         }
 
-                        // 4. ลบบิลออกจากระบบ
                         await deleteDoc(doc(db, "bills", billData.id));
 
-                        // 5. ถ้ากดปุ่ม 'แก้ไข' ให้ดึงข้อมูลมาแสดงที่หน้าสร้างบิล
                         if (action === 'edit') {
                             this.bill.type = billData.type || 'ใบเสร็จรับเงิน';
                             this.bill.customerName = billData.customerName || '';
-                            // คัดลอกข้อมูล items ใหม่ทั้งหมดเพื่อไม่ให้อ้างอิงตัวแปรเดิม
                             this.bill.items = JSON.parse(JSON.stringify(billData.items)); 
                             this.billNumber = billData.billNumber;
                             this.currentTab = 'create';
+                            this.logActivity('แก้ไขสินค้า', `ทำรายการแก้ไขบิล INV-${billData.billNumber} และคืนสต็อกเข้าคลัง`);
                             alert('ลบบิลเก่าและคืนสต็อกสำเร็จ!\nระบบได้โหลดรายการบิลเดิมมาให้แล้ว สามารถแก้ไขและบันทึกบิลใหม่ได้เลยครับ');
                         } else {
+                            this.logActivity('ลบข้อมูล', `ลบบิล INV-${billData.billNumber} และคืนสต็อกเข้าคลังเรียบร้อย`);
                             alert('ลบบิลและดึงสินค้าคืนคลังเรียบร้อยแล้ว');
                         }
                     } catch (error) {
