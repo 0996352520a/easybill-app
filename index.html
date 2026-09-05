@@ -94,26 +94,52 @@
             </div>
         </div>
 
-        <!-- ================= ประวัติการขาย ================= -->
+        <!-- ================= ประวัติการขาย (อัปเดตระบบค้นหาลูกค้า) ================= -->
         <div v-show="currentTab === 'history'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
-                <div><h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลัง</h2><p class="text-sm text-gray-500">วันที่: {{ currentDate }} (ออกบิลไปแล้ว {{ todayBills.length }} ใบ)</p></div>
-                <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md w-full md:w-auto">🖨️ พิมพ์รายงานยอดขาย</button>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลัง</h2>
+                    <p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ)</p>
+                </div>
+                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                    <!-- 🔍 เพิ่มช่องค้นหาชื่อลูกค้าตรงนี้ -->
+                    <input v-model="historySearch" type="text" placeholder="🔍 ค้นหาชื่อลูกค้า หรือเลขบิล..." class="border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-64 bg-gray-50">
+                    <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md w-full md:w-auto whitespace-nowrap">
+                        🖨️ พิมพ์รายงานยอดขาย
+                    </button>
+                </div>
             </div>
+            
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th><th class="p-3 text-center">จัดการ</th></tr></thead>
+                <table class="w-full text-left border-collapse min-w-[850px]">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600">
+                            <th class="p-3 w-32">เวลา</th>
+                            <th class="p-3 w-28">เลขที่บิล</th>
+                            <th class="p-3 w-40">ลูกค้า</th>
+                            <th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th>
+                            <th class="p-3 text-right w-28">ยอดรวม (฿)</th>
+                            <th class="p-3 text-center w-48">จัดการ</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        <tr v-for="b in bills.slice(0, 30)" :key="b.id" class="border-b hover:bg-gray-50">
-                            <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
+                        <tr v-for="b in filteredHistoryBills" :key="b.id" class="border-b hover:bg-gray-50">
+                            <td class="p-3 text-xs text-gray-500">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
                             <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
-                            <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
-                            <td class="p-3 text-right font-medium text-teal-600">{{ b.total.toLocaleString() }}</td>
+                            <td class="p-3 font-medium text-teal-700">{{ b.customerName || 'ทั่วไป' }}</td>
+                            <!-- 🛍️ เพิ่มช่องแสดงรายการสินค้าที่ซื้อในบิลนี้ -->
+                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">
+                                {{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}
+                            </td>
+                            <td class="p-3 text-right font-medium text-gray-800">{{ b.total.toLocaleString() }}</td>
                             <td class="p-3 text-center flex justify-center gap-1">
                                 <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
                                 <button @click="processBillAction(b, 'edit')" class="text-yellow-600 hover:text-yellow-800 font-bold text-sm bg-yellow-50 px-2 py-1 rounded shadow-sm">✏️ แก้ไข</button>
                                 <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
                             </td>
+                        </tr>
+                        <tr v-if="filteredHistoryBills.length === 0">
+                            <td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td>
                         </tr>
                     </tbody>
                 </table>
@@ -175,7 +201,7 @@
                     </div>
                 </div>
                 <table class="w-full text-left border-collapse min-w-[600px] border border-gray-100 rounded-lg">
-                    <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า</th><th class="p-3 text-right">ราคา</th><th class="p-3 text-center">ปรับสต็อก</th><th class="p-3 text-center">ลบ</th></tr></thead>
+                    <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า</th><th class="p-3 text-right">ราคา</th><th class="p-3 text-center">ปรับสต็อกด่วน</th><th class="p-3 text-center">ลบ</th></tr></thead>
                     <tbody>
                         <tr v-for="prod in filteredInventory" :key="prod.id" class="border-b hover:bg-gray-50">
                             <td class="p-3 text-sm text-teal-600 font-medium">{{ prod.category || 'ทั่วไป' }}</td>
@@ -264,7 +290,6 @@
                         </div>
                     </div>
 
-                    <!-- 💰 ส่วนรับเงินและเงินทอน (เพิ่มใหม่) -->
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-400">
                         <h3 class="font-semibold text-gray-700 mb-3">4. คำนวณเงินรับ / เงินทอน</h3>
                         <div class="flex flex-col gap-3">
@@ -304,7 +329,6 @@
                             <tbody>
                                 <tr v-for="(item, index) in bill.items" :key="index" class="border-b">
                                     <td class="py-3 font-medium">{{ item.name }}<span v-if="!item.id" class="text-[10px] text-orange-500 ml-2 border border-orange-300 rounded px-1 no-print">นอกคลัง</span></td>
-                                    
                                     <td class="py-3 text-center no-print">
                                         <div class="flex items-center justify-center gap-1">
                                             <button @click="decreaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">-</button>
@@ -312,7 +336,6 @@
                                             <button @click="increaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">+</button>
                                         </div>
                                     </td>
-                                    
                                     <td class="py-3 text-center print:table-cell hidden">{{ item.qty }}</td>
                                     <td class="py-3 text-right">{{ item.price.toLocaleString() }}</td><td class="py-3 text-right font-medium text-teal-700">{{ (item.price * item.qty).toLocaleString() }}</td>
                                     <td class="py-3 text-center no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold text-sm">ลบ</button></td>
@@ -320,7 +343,6 @@
                             </tbody>
                         </table>
                         <div class="flex justify-end mb-8">
-                            <!-- เพิ่มส่วนแสดงเงินทอนในบิล A4 -->
                             <div class="w-80 bg-teal-50 p-5 rounded-xl border border-teal-100">
                                 <div class="flex justify-between font-bold text-xl text-gray-700 mb-2"><span>ยอดรวมสุทธิ:</span><span>{{ totalAmount.toLocaleString() }} ฿</span></div>
                                 <div v-if="bill.receivedAmount > 0" class="flex justify-between text-gray-600 mb-2 font-medium"><span>รับเงินมา:</span><span>{{ bill.receivedAmount.toLocaleString() }} ฿</span></div>
@@ -355,12 +377,9 @@
                                 </tr>
                             </tbody>
                         </table>
-                        
-                        <!-- เพิ่มส่วนแสดงเงินทอนในบิล Slip -->
                         <div class="text-right font-bold text-lg mt-2 border-t border-dashed border-gray-400 pt-2">รวมสุทธิ: {{ totalAmount.toLocaleString() }} ฿</div>
                         <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString() }} ฿</div>
                         <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString() }} ฿</div>
-                        
                         <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
                     </div>
                 </div>
@@ -381,6 +400,7 @@
             </table>
         </div>
 
+        <!-- ================= พิมพ์บิลย้อนหลัง ================= -->
         <div v-if="printTarget === 'history' && viewingBill" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
             <div class="text-center mb-3"><h2 :class="shop.paperSize === 'slip' ? 'text-xl' : 'text-3xl'" class="font-bold">{{ shop.name }}</h2></div>
             <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3">
@@ -396,12 +416,10 @@
                     </tr>
                 </tbody>
             </table>
-            
-            <!-- เพิ่มส่วนแสดงเงินทอนในประวัติการพิมพ์ย้อนหลัง -->
             <div class="text-right font-bold text-lg mt-2 border-t border-dashed border-gray-400 pt-2">รวมสุทธิ: {{ viewingBill.total.toLocaleString() }} ฿</div>
             <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString() }} ฿</div>
             <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString() }} ฿</div>
-
+            <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
         </div>
     </div>
 
@@ -438,11 +456,12 @@
                     quickEdit: { category: '', productId: '', barcode: '', price: '', stock: '' },
                     inventoryCategory: 'ทั้งหมด',
                     
-                    // เพิ่ม receivedAmount (รับเงินมา)
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
                     selectedCategory: 'ทั้งหมด', searchQuery: '', scannedBarcode: '', manualItem: { name: '', price: '', qty: 1 },
+                    historySearch: '', // ตัวแปรสำหรับค้นหาในหน้าประวัติ
+                    
                     printTarget: 'create', viewingBill: null, chartInstance: null
                 }
             },
@@ -453,13 +472,27 @@
                 todayTotal() { return this.todayBills.reduce((sum, b) => sum + b.total, 0); },
                 
                 uniqueCategoriesList() { return [...new Set(this.products.map(p => p.category || 'ทั่วไป'))]; },
+                
                 filteredProducts() { 
                     let filtered = this.products;
                     if (this.selectedCategory !== 'ทั้งหมด') { filtered = filtered.filter(p => (p.category || 'ทั่วไป') === this.selectedCategory); }
                     if (this.searchQuery.trim() !== '') { const query = this.searchQuery.trim().toLowerCase(); filtered = filtered.filter(p => p.name.toLowerCase().includes(query)); }
                     return filtered;
                 },
-                filteredInventory() { return this.inventoryCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.inventoryCategory); }
+                filteredInventory() { return this.inventoryCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.inventoryCategory); },
+                
+                // สำหรับหน้าประวัติการขาย
+                filteredHistoryBills() {
+                    let list = this.bills;
+                    if (this.historySearch.trim() !== '') {
+                        const query = this.historySearch.toLowerCase().trim();
+                        list = list.filter(b => 
+                            (b.customerName && b.customerName.toLowerCase().includes(query)) ||
+                            (b.billNumber && b.billNumber.toString().includes(query))
+                        );
+                    }
+                    return list.slice(0, 50); // โชว์สูงสุด 50 รายการเพื่อความเร็ว
+                }
             },
             watch: {
                 bills: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
@@ -481,6 +514,7 @@
                     const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
                     this.activityLogs = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 });
+
                 if (this.currentTab === 'dashboard') { setTimeout(() => this.renderChart(), 1000); }
             },
             methods: {
@@ -627,7 +661,6 @@
                 async saveAndPrintBill() {
                     if(this.bill.items.length === 0) return alert('กรุณาเลือกสินค้าลงบิลก่อนครับ');
                     
-                    // แจ้งเตือนถ้ารับเงินมาน้อยกว่ายอดที่ต้องจ่าย
                     const finalReceived = this.bill.receivedAmount || 0;
                     if (finalReceived > 0 && finalReceived < this.totalAmount) {
                         if(!confirm('เตือน! จำนวนเงินที่รับมาน้อยกว่ายอดรวมที่ต้องชำระ ต้องการดำเนินการต่อหรือไม่?')) return;
@@ -660,7 +693,7 @@
                     setTimeout(() => {
                         this.bill.items = []; 
                         this.bill.customerName = ''; 
-                        this.bill.receivedAmount = null; // เคลียร์ช่องรับเงิน
+                        this.bill.receivedAmount = null; 
                         this.billNumber = Math.floor(Math.random() * 90000) + 10000;
                     }, 1000);
                 },
@@ -683,7 +716,7 @@
                         if (action === 'edit') {
                             this.bill.type = billData.type || 'ใบเสร็จรับเงิน';
                             this.bill.customerName = billData.customerName || '';
-                            this.bill.receivedAmount = billData.receivedAmount || null; // ดึงยอดรับเงินมาแสดงด้วยถ้ามี
+                            this.bill.receivedAmount = billData.receivedAmount || null; 
                             this.bill.items = JSON.parse(JSON.stringify(billData.items)); 
                             this.billNumber = billData.billNumber;
                             this.currentTab = 'create';
