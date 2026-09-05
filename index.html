@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyBill - ระบบออกใบเสร็จและตัดสต็อก</title>
+    <title>EasyBill - ระบบออกใบเสร็จและคลังสินค้า</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
         body { font-family: 'Prompt', sans-serif; }
@@ -30,91 +29,43 @@
 <body class="bg-gray-100 min-h-screen text-gray-800">
     <div id="app" class="max-w-6xl mx-auto p-4 md:p-6">
         
-        <!-- เมนูหลัก (จะซ่อนอัตโนมัติถ้าเปิดในโหมดหน้าต่างแยก) -->
-        <div v-if="!isStandaloneDashboard" class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
+        <!-- เมนูหลัก -->
+        <div class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
             <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">☁️ Cloud</span></h1>
             
-            <!-- ปุ่มกดดูแดชบอร์ดปกติ และปุ่มแยกหน้าต่าง -->
-            <div class="flex bg-gray-100 rounded-lg p-1">
-                <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'bg-teal-500 text-white shadow' : 'text-gray-600 hover:bg-gray-200'" class="px-3 py-1.5 rounded-md font-medium transition text-sm">📊 ยอดขาย</button>
-                <button @click="openStandaloneDashboard" class="px-2 py-1.5 rounded-md font-medium transition text-sm text-blue-600 hover:bg-blue-100 ml-1 flex items-center" title="เปิดแดชบอร์ดแยกอีกหน้าต่าง">
-                    ↗️ เปิดจอแยก
-                </button>
-            </div>
-
-            <button @click="currentTab = 'create'" :class="currentTab === 'create' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700'" class="px-4 py-2 rounded-lg font-medium transition hover:bg-gray-200">สร้างบิล</button>
-            <button @click="currentTab = 'products'" :class="currentTab === 'products' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700'" class="px-4 py-2 rounded-lg font-medium transition hover:bg-gray-200">คลังสินค้า</button>
-            <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-700'" class="px-4 py-2 rounded-lg font-medium transition hover:bg-gray-200">ตั้งค่า</button>
+            <button @click="currentTab = 'create'" :class="currentTab === 'create' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">สร้างบิล</button>
+            <button @click="currentTab = 'products'" :class="currentTab === 'products' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">คลังสินค้า</button>
+            <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ประวัติการขาย</button>
+            <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
         </div>
 
-        <!-- แบนเนอร์หัวจอ (แสดงเฉพาะโหมดแยกหน้าต่าง) -->
-        <div v-if="isStandaloneDashboard" class="no-print bg-gray-800 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <span class="text-2xl">📊</span>
+        <!-- หน้าประวัติการขาย (แทนที่แดชบอร์ด) -->
+        <div v-show="currentTab === 'history'" class="no-print space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">{{ shop.name || 'EasyBill' }} - Live Dashboard</h1>
-                    <p class="text-xs text-gray-300">อัปเดตข้อมูล Real-time</p>
-                </div>
-            </div>
-            <div class="text-right">
-                <p class="text-lg font-bold text-teal-400">{{ currentDate }}</p>
-                <p class="text-sm text-gray-400"><span class="animate-pulse inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>เชื่อมต่อ Cloud แล้ว</p>
-            </div>
-        </div>
-
-        <!-- หน้าแดชบอร์ด -->
-        <div v-show="currentTab === 'dashboard'" class="no-print space-y-6">
-            
-            <div v-if="!isStandaloneDashboard" class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-700">สรุปยอดขายประจำวัน</h2>
-                    <p class="text-sm text-gray-500">วันที่: {{ currentDate }}</p>
+                    <h2 class="text-xl font-bold text-gray-700">ประวัติและสรุปยอดขายประจำวัน</h2>
+                    <p class="text-sm text-gray-500">วันที่: {{ currentDate }} (ออกบิลไปแล้ว {{ todayBills.length }} ใบ)</p>
                 </div>
                 <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md w-full md:w-auto">
                     🖨️ พิมพ์รายงานยอดขายวันนี้
                 </button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500">
-                    <h3 class="text-gray-500 font-medium">ยอดขายรวมวันนี้</h3>
-                    <p class="text-4xl font-bold text-teal-600 mt-2">{{ todayTotal.toLocaleString() }} <span class="text-xl">บาท</span></p>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-gray-400">
-                    <h3 class="text-gray-500 font-medium">จำนวนบิลที่ออกวันนี้</h3>
-                    <p class="text-4xl font-bold text-gray-700 mt-2">{{ todayBills.length }} <span class="text-xl">ใบ</span></p>
-                </div>
-            </div>
-
-            <!-- กราฟเปรียบเทียบยอดขายและสต็อก -->
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <div class="flex justify-between items-center mb-1">
-                    <h3 class="text-lg font-semibold text-gray-800">📈 วิเคราะห์: ยอดขายสะสม เทียบกับ สต็อกคงเหลือ</h3>
-                </div>
-                <p class="text-sm text-gray-500 mb-4">แสดงข้อมูลสินค้าขายดี 15 อันดับแรก</p>
-                <div class="relative w-full" :class="isStandaloneDashboard ? 'h-[400px]' : 'h-72 md:h-96'">
-                    <canvas id="salesStockChart"></canvas>
-                </div>
-            </div>
-
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <h3 class="text-lg font-semibold mb-4">ประวัติการออกบิลล่าสุด (วันนี้)</h3>
                 <table class="w-full text-left border-collapse min-w-[600px]">
                     <thead>
-                        <tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th><th class="p-3 text-center" v-if="!isStandaloneDashboard">จัดการ</th></tr>
+                        <tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th><th class="p-3 text-center">จัดการ</th></tr>
                     </thead>
                     <tbody>
-                        <tr v-for="b in todayBills" :key="b.id" class="border-b hover:bg-gray-50">
-                            <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleTimeString('th-TH') }}</td>
-                            <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
+                        <tr v-for="b in bills.slice(0, 30)" :key="b.id" class="border-b hover:bg-gray-50">
+                            <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
+                            <td class="p-3 font-mono text-sm">INV-{{ b.billNumber }}</td>
                             <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
-                            <td class="p-3 text-right font-bold text-teal-600">{{ b.total.toLocaleString() }}</td>
-                            <td class="p-3 text-center" v-if="!isStandaloneDashboard">
-                                <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-3 py-1 rounded shadow-sm">🖨️ พิมพ์ซ้ำ</button>
-                            </td>
+                            <td class="p-3 text-right font-medium text-teal-600">{{ b.total.toLocaleString() }}</td>
+                            <td class="p-3 text-center"><button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-3 py-1 rounded shadow-sm">🖨️ พิมพ์ซ้ำ</button></td>
                         </tr>
-                        <tr v-if="todayBills.length === 0">
-                            <td :colspan="isStandaloneDashboard ? 4 : 5" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ยังไม่มีประวัติการขายในวันนี้</td>
+                        <tr v-if="bills.length === 0">
+                            <td colspan="5" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ยังไม่มีประวัติการขาย</td>
                         </tr>
                     </tbody>
                 </table>
@@ -124,6 +75,7 @@
         <!-- หน้าคลังสินค้า -->
         <div v-show="currentTab === 'products'" class="no-print space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- แผงซ้าย: อัปเดตด่วน -->
                 <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-100">
                     <h3 class="font-bold text-blue-800 text-lg mb-4">⚡ อัปเดตข้อมูลสินค้าเดิม</h3>
                     <div class="space-y-4">
@@ -151,6 +103,7 @@
                     </div>
                 </div>
 
+                <!-- แผงขวา: เพิ่มสินค้าใหม่ -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h3 class="font-bold text-gray-700 text-lg mb-4">➕ เพิ่มสินค้าใหม่เข้าคลัง</h3>
                     <div class="space-y-4">
@@ -168,6 +121,7 @@
                 </div>
             </div>
 
+            <!-- ตารางคลังสินค้า และ ตัวกรองหมวดหมู่ -->
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                     <h3 class="font-bold text-gray-700 text-lg">📋 รายการสินค้า ({{ filteredInventory.length }} รายการ)</h3>
@@ -333,7 +287,7 @@
         </div>
     </div>
 
-    <!-- ส่วนเชื่อมต่อ Firebase และ Chart.js -->
+    <!-- ส่วนเชื่อมต่อ Firebase -->
     <script type="module">
         import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -351,17 +305,10 @@
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
 
-        // เช็คว่าถูกเปิดมาในโหมด "หน้าต่างแยก (Standalone Dashboard)" หรือไม่
-        const urlParams = new URLSearchParams(window.location.search);
-        const isStandalone = urlParams.get('view') === 'dashboard';
-
         createApp({
             data() {
                 return {
-                    // ถ้าเป็นโหมดแยก บังคับเปิดแดชบอร์ด ถ้าไม่ให้เปิดหน้าสร้างบิล
-                    currentTab: isStandalone ? 'dashboard' : 'create',
-                    isStandaloneDashboard: isStandalone,
-                    
+                    currentTab: 'create', // กลับมาเปิดหน้าสร้างบิลเป็นหน้าแรก
                     shop: { name: '', address: '', paperSize: 'a4' },
                     products: [], bills: [],
                     newProduct: { category: '', name: '', price: '', stock: '' },
@@ -369,8 +316,7 @@
                     inventoryCategory: 'ทั้งหมด',
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [] },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
-                    selectedCategory: 'ทั้งหมด', printTarget: 'create', viewingBill: null,
-                    chartInstance: null
+                    selectedCategory: 'ทั้งหมด', printTarget: 'create', viewingBill: null
                 }
             },
             computed: {
@@ -383,11 +329,6 @@
                 filteredProducts() { return this.selectedCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.selectedCategory); },
                 filteredInventory() { return this.inventoryCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.inventoryCategory); }
             },
-            watch: {
-                bills: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
-                products: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
-                currentTab(newVal) { if (newVal === 'dashboard') this.$nextTick(() => this.renderChart()); }
-            },
             mounted() {
                 onSnapshot(doc(db, "settings", "shopInfo"), (docSnap) => { 
                     if (docSnap.exists()) { this.shop = docSnap.data(); if(!this.shop.paperSize) this.shop.paperSize = 'a4'; } 
@@ -399,49 +340,8 @@
                     const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
                     this.bills = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 });
-                
-                if (this.currentTab === 'dashboard') {
-                    setTimeout(() => this.renderChart(), 1000);
-                }
             },
             methods: {
-                // ฟังก์ชันเปิดจอแยก
-                openStandaloneDashboard() {
-                    const dashboardUrl = window.location.pathname + '?view=dashboard';
-                    window.open(dashboardUrl, '_blank', 'width=1000,height=800,menubar=no,toolbar=no');
-                },
-
-                renderChart() {
-                    const ctx = document.getElementById('salesStockChart');
-                    if (!ctx) return;
-                    if (this.chartInstance) this.chartInstance.destroy();
-
-                    const salesData = {};
-                    this.bills.forEach(bill => {
-                        bill.items.forEach(item => {
-                            if (item.id) salesData[item.id] = (salesData[item.id] || 0) + item.qty;
-                        });
-                    });
-
-                    const chartData = this.products.map(p => ({
-                        name: p.name,
-                        stock: p.stock,
-                        sold: salesData[p.id] || 0
-                    })).sort((a, b) => b.sold - a.sold).slice(0, 15);
-
-                    this.chartInstance = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: chartData.map(d => d.name),
-                            datasets: [
-                                { label: 'ยอดขายสะสม (ชิ้น)', data: chartData.map(d => d.sold), backgroundColor: '#14b8a6', borderRadius: 4 },
-                                { label: 'สต็อกคงเหลือ (ชิ้น)', data: chartData.map(d => d.stock), backgroundColor: '#3b82f6', borderRadius: 4 }
-                            ]
-                        },
-                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
-                    });
-                },
-
                 saveShopData() { setDoc(doc(db, "settings", "shopInfo"), this.shop).then(() => alert('บันทึกตั้งค่าสำเร็จ!')); },
                 
                 syncCategoryFilter() {
