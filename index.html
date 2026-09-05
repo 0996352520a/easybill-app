@@ -39,7 +39,7 @@
             <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
         </div>
 
-        <!-- หน้าประวัติการขาย (แทนที่แดชบอร์ด) -->
+        <!-- หน้าประวัติการขาย -->
         <div v-show="currentTab === 'history'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
                 <div>
@@ -52,17 +52,27 @@
             </div>
             
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[600px]">
+                <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                        <tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th><th class="p-3 text-center">จัดการ</th></tr>
+                        <tr class="bg-gray-100 text-gray-600">
+                            <th class="p-3">เวลา</th>
+                            <th class="p-3">เลขที่บิล</th>
+                            <th class="p-3">ลูกค้า</th>
+                            <th class="p-3 text-right">ยอดรวม (บาท)</th>
+                            <th class="p-3 text-center">จัดการ</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr v-for="b in bills.slice(0, 30)" :key="b.id" class="border-b hover:bg-gray-50">
                             <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
-                            <td class="p-3 font-mono text-sm">INV-{{ b.billNumber }}</td>
+                            <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
                             <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
                             <td class="p-3 text-right font-medium text-teal-600">{{ b.total.toLocaleString() }}</td>
-                            <td class="p-3 text-center"><button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-3 py-1 rounded shadow-sm">🖨️ พิมพ์ซ้ำ</button></td>
+                            <td class="p-3 text-center flex justify-center gap-1">
+                                <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
+                                <button @click="processBillAction(b, 'edit')" class="text-yellow-600 hover:text-yellow-800 font-bold text-sm bg-yellow-50 px-2 py-1 rounded shadow-sm">✏️ แก้ไข</button>
+                                <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
+                            </td>
                         </tr>
                         <tr v-if="bills.length === 0">
                             <td colspan="5" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ยังไม่มีประวัติการขาย</td>
@@ -417,6 +427,54 @@
                         this.bill.items = []; this.bill.customerName = ''; this.billNumber = Math.floor(Math.random() * 90000) + 10000;
                     }, 1000);
                 },
+
+                // ฟังก์ชันจัดการ การลบ และ แก้ไขบิล
+                async processBillAction(billData, action) {
+                    // 1. ถามรหัสผ่าน
+                    const actionName = action === 'edit' ? 'แก้ไข' : 'ลบ';
+                    const pin = prompt(`กรุณาใส่รหัสผ่านเพื่อยืนยันการ${actionName}บิลนี้:`);
+                    
+                    if (pin === null) return; // กรณีกดยกเลิกใน prompt
+                    if (pin !== '1234') {
+                        alert('รหัสผ่านไม่ถูกต้อง! ยกเลิกการทำรายการ');
+                        return;
+                    }
+
+                    // 2. ยืนยันอีกครั้ง
+                    if (!confirm(`คุณแน่ใจหรือไม่? ระบบจะดึงสินค้าในบิลกลับคืนสู่คลังอัตโนมัติ`)) return;
+
+                    try {
+                        // 3. คืนสต็อกกลับเข้าไปในฐานข้อมูล
+                        for (const item of billData.items) {
+                            if (item.id) {
+                                const prodDb = this.products.find(p => p.id === item.id);
+                                if (prodDb) {
+                                    await updateDoc(doc(db, "products", item.id), { stock: prodDb.stock + item.qty });
+                                }
+                            }
+                        }
+
+                        // 4. ลบบิลออกจากระบบ
+                        await deleteDoc(doc(db, "bills", billData.id));
+
+                        // 5. ถ้ากดปุ่ม 'แก้ไข' ให้ดึงข้อมูลมาแสดงที่หน้าสร้างบิล
+                        if (action === 'edit') {
+                            this.bill.type = billData.type || 'ใบเสร็จรับเงิน';
+                            this.bill.customerName = billData.customerName || '';
+                            // คัดลอกข้อมูล items ใหม่ทั้งหมดเพื่อไม่ให้อ้างอิงตัวแปรเดิม
+                            this.bill.items = JSON.parse(JSON.stringify(billData.items)); 
+                            this.billNumber = billData.billNumber;
+                            this.currentTab = 'create';
+                            alert('ลบบิลเก่าและคืนสต็อกสำเร็จ!\nระบบได้โหลดรายการบิลเดิมมาให้แล้ว สามารถแก้ไขและบันทึกบิลใหม่ได้เลยครับ');
+                        } else {
+                            alert('ลบบิลและดึงสินค้าคืนคลังเรียบร้อยแล้ว');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert("เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง");
+                    }
+                },
+
                 printPastBill(b) {
                     this.viewingBill = b; this.printTarget = 'history';
                     setTimeout(() => { window.print(); this.printTarget = 'create'; }, 200);
