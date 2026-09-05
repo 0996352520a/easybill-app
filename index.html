@@ -12,20 +12,14 @@
         .hide-scroll::-webkit-scrollbar { display: none; }
         .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
-        @media screen {
-            .print-only { display: none !important; }
-        }
+        @media screen { .print-only { display: none !important; } }
         
         @media print {
             .print-only { display: block !important; width: 100%; background: white; }
             .no-print { display: none !important; }
             .print-area { width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; }
             body { background-color: white; margin: 0; padding: 0; }
-
-            .slip-format {
-                width: 58mm !important; margin: 0 !important; padding: 0 !important;
-                color: black !important; box-shadow: none !important; border: none !important;
-            }
+            .slip-format { width: 58mm !important; margin: 0 !important; padding: 0 !important; color: black !important; box-shadow: none !important; border: none !important; }
             .slip-format * { color: black !important; } 
             @page { margin: 0; }
         }
@@ -84,7 +78,7 @@
             </div>
         </div>
 
-        <!-- หน้าคลังสินค้า (ปรับปรุงใหม่) -->
+        <!-- หน้าคลังสินค้า -->
         <div v-show="currentTab === 'products'" class="no-print space-y-6">
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -93,7 +87,7 @@
                     <h3 class="font-bold text-blue-800 text-lg mb-4">⚡ อัปเดตข้อมูลสินค้าเดิม</h3>
                     <div class="space-y-4">
                         <div class="flex flex-col md:flex-row gap-3">
-                            <select v-model="quickEdit.category" @change="quickEdit.productId = ''" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 bg-white">
+                            <select v-model="quickEdit.category" @change="syncCategoryFilter" class="flex-1 border rounded-lg p-3 outline-none focus:ring-2 focus:ring-blue-400 bg-white font-medium text-blue-800">
                                 <option value="">-- 1. เลือกหมวดหมู่ --</option>
                                 <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
                             </select>
@@ -140,13 +134,17 @@
 
             <!-- ตารางคลังสินค้า และ ตัวกรองหมวดหมู่ -->
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <div class="flex justify-between items-end mb-4">
-                    <h3 class="font-bold text-gray-700 text-lg">📋 รายการสินค้าทั้งหมด</h3>
-                </div>
-                
-                <div class="flex gap-2 overflow-x-auto mb-4 pb-2 hide-scroll" v-if="uniqueCategoriesList.length > 0">
-                    <button @click="inventoryCategory = 'ทั้งหมด'" :class="inventoryCategory === 'ทั้งหมด' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition">ทั้งหมด</button>
-                    <button v-for="cat in uniqueCategoriesList" :key="cat" @click="inventoryCategory = cat" :class="inventoryCategory === cat ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600'" class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition">{{ cat }}</button>
+                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h3 class="font-bold text-gray-700 text-lg">📋 รายการสินค้า ({{ filteredInventory.length }} รายการ)</h3>
+                    
+                    <!-- Dropdown สำหรับกรองตารางสต็อก -->
+                    <div class="flex items-center gap-3 w-full md:w-auto bg-teal-50 p-2 rounded-lg border border-teal-100">
+                        <span class="text-sm font-bold text-teal-800 whitespace-nowrap">🔍 กรองหมวดหมู่:</span>
+                        <select v-model="inventoryCategory" class="w-full md:w-48 border-none rounded-md p-2 outline-none focus:ring-2 focus:ring-teal-400 bg-white font-medium text-gray-700 shadow-sm">
+                            <option value="ทั้งหมด">-- แสดงทั้งหมด --</option>
+                            <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
+                        </select>
+                    </div>
                 </div>
 
                 <table class="w-full text-left border-collapse min-w-[600px] border border-gray-100 rounded-lg">
@@ -158,7 +156,7 @@
                     <tbody>
                         <tr v-for="prod in filteredInventory" :key="prod.id" class="border-b hover:bg-gray-50">
                             <td class="p-3 text-sm text-teal-600 font-medium">{{ prod.category || 'ทั่วไป' }}</td>
-                            <td class="p-3">{{ prod.name }}</td>
+                            <td class="p-3 font-medium">{{ prod.name }}</td>
                             <td class="p-3 text-right">{{ prod.price.toLocaleString() }} ฿</td>
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-2">
@@ -168,11 +166,11 @@
                                 </div>
                             </td>
                             <td class="p-3 text-center">
-                                <button @click="deleteProduct(prod.id)" class="text-red-400 hover:text-red-600 font-bold bg-red-50 px-2 py-1 rounded">ลบ</button>
+                                <button @click="deleteProduct(prod.id)" class="text-red-400 hover:text-red-600 font-bold bg-red-50 px-3 py-1 rounded shadow-sm">ลบ</button>
                             </td>
                         </tr>
                         <tr v-if="filteredInventory.length === 0">
-                            <td colspan="5" class="p-6 text-center text-gray-400">ไม่พบสินค้าในหมวดหมู่นี้</td>
+                            <td colspan="5" class="p-8 text-center text-gray-400 bg-gray-50 border-dashed border-2">ไม่พบสินค้าในหมวดหมู่นี้</td>
                         </tr>
                     </tbody>
                 </table>
@@ -203,7 +201,7 @@
                 <!-- แผงซ้าย -->
                 <div class="no-print lg:col-span-5 space-y-4">
                     <div class="bg-white p-5 rounded-xl shadow-sm flex justify-between items-center bg-teal-50">
-                        <span class="text-gray-700 font-medium">รูปแบบบิลปัจจุบัน:</span>
+                        <span class="text-gray-700 font-medium">รูปแบบบิล:</span>
                         <span class="font-bold text-teal-700">{{ shop.paperSize === 'slip' ? '🧾 สลิป 57mm' : '📄 A4' }}</span>
                     </div>
                     <div class="bg-white p-5 rounded-xl shadow-sm">
@@ -337,8 +335,8 @@
                     shop: { name: '', address: '', paperSize: 'a4' },
                     products: [], bills: [],
                     newProduct: { category: '', name: '', price: '', stock: '' },
-                    quickEdit: { category: '', productId: '', price: '', stock: '' }, // ข้อมูลสำหรับแผงอัปเดตด่วน
-                    inventoryCategory: 'ทั้งหมด', // หมวดหมู่สำหรับกรองในตารางคลังสินค้า
+                    quickEdit: { category: '', productId: '', price: '', stock: '' },
+                    inventoryCategory: 'ทั้งหมด',
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [] },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     selectedCategory: 'ทั้งหมด', printTarget: 'create', viewingBill: null
@@ -352,7 +350,6 @@
                 
                 uniqueCategoriesList() { return [...new Set(this.products.map(p => p.category || 'ทั่วไป'))]; },
                 filteredProducts() { return this.selectedCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.selectedCategory); },
-                // ตัวกรองสำหรับตารางในหน้า "คลังสินค้า"
                 filteredInventory() { return this.inventoryCategory === 'ทั้งหมด' ? this.products : this.products.filter(p => (p.category || 'ทั่วไป') === this.inventoryCategory); }
             },
             mounted() {
@@ -370,39 +367,42 @@
             methods: {
                 saveShopData() { setDoc(doc(db, "settings", "shopInfo"), this.shop).then(() => alert('บันทึกตั้งค่าสำเร็จ!')); },
                 
-                // ---- การจัดการคลังสินค้า (เพิ่ม, ลบ, อัปเดตด่วน) ----
+                // เชื่อมตัวกรองเมื่อเลือกหมวดหมู่ที่ Quick Edit
+                syncCategoryFilter() {
+                    this.quickEdit.productId = '';
+                    this.inventoryCategory = this.quickEdit.category ? this.quickEdit.category : 'ทั้งหมด';
+                },
+
                 addProduct() {
                     if (!this.newProduct.name || !this.newProduct.price) return alert("กรุณาใส่ชื่อและราคาสินค้า");
                     const prodCategory = this.newProduct.category.trim() || 'ทั่วไป';
                     addDoc(collection(db, "products"), { category: prodCategory, name: this.newProduct.name, price: Number(this.newProduct.price), stock: Number(this.newProduct.stock || 0) });
-                    this.newProduct = { category: '', name: '', price: '', stock: '' };
+                    this.inventoryCategory = prodCategory; // เปลี่ยนตารางให้แสดงหมวดที่เพิ่งเพิ่มทันที
+                    this.newProduct = { category: prodCategory, name: '', price: '', stock: '' }; // คงหมวดหมู่ไว้เผื่อพิมพ์ต่อ
                 },
                 deleteProduct(id) { if(confirm('ลบสินค้านี้?')) deleteDoc(doc(db, "products", id)); },
                 
-                // ดึงข้อมูลเมื่อเลือกสินค้าในแผง Quick Edit
                 loadQuickEditProduct() {
                     if(!this.quickEdit.productId) return;
                     const p = this.products.find(x => x.id === this.quickEdit.productId);
                     if(p) { this.quickEdit.price = p.price; this.quickEdit.stock = p.stock; }
                 },
-                // บันทึกจากแผง Quick Edit
                 async saveQuickEdit() {
                     if(!this.quickEdit.productId) return;
                     await updateDoc(doc(db, "products", this.quickEdit.productId), { price: Number(this.quickEdit.price), stock: Number(this.quickEdit.stock) });
                     alert('อัปเดตข้อมูลสำเร็จ!');
-                    this.quickEdit = { category: '', productId: '', price: '', stock: '' }; // ล้างฟอร์ม
+                    this.quickEdit = { category: '', productId: '', price: '', stock: '' }; 
+                    this.inventoryCategory = 'ทั้งหมด'; // กลับไปหน้าหลัก
                 },
-                // ปรับสต็อกผ่านปุ่ม +/- ในตารางโดยตรง
                 async quickAdjustStock(id, amount) {
                     const prodDb = this.products.find(p => p.id === id);
                     if (prodDb) {
                         const newStock = prodDb.stock + amount;
-                        if (newStock < 0) return; // กันสต็อกติดลบ
+                        if (newStock < 0) return;
                         await updateDoc(doc(db, "products", id), { stock: newStock });
                     }
                 },
 
-                // ---- การออกบิล ----
                 addProductToBill(prod) {
                     if(prod.stock <= 0) return alert('สินค้าหมดสต็อกครับ!');
                     const exist = this.bill.items.find(i => i.id === prod.id);
