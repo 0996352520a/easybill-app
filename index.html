@@ -57,20 +57,60 @@
         <!-- ================= แดชบอร์ดและกราฟ ================= -->
         <div v-show="currentTab === 'dashboard'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
-                <div><h2 class="text-xl font-bold text-gray-700">สรุปยอดขายและกราฟวิเคราะห์สต็อก</h2><p class="text-sm text-gray-500">วันที่: {{ currentDate }}</p></div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-700">สรุปยอดขายและกราฟวิเคราะห์สต็อก</h2>
+                    <div class="flex items-center gap-2 mt-2">
+                        <label class="text-sm font-bold text-gray-500">📅 เลือกวันที่:</label>
+                        <input type="date" v-model="selectedDate" class="border border-gray-300 rounded-md px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
+                    </div>
+                </div>
                 <div class="flex gap-2 w-full md:w-auto">
                     <button @click="openStandaloneDashboard" v-if="!isStandaloneDashboard" class="bg-gray-100 hover:bg-gray-200 text-blue-600 border border-blue-200 px-4 py-3 rounded-lg font-bold transition flex items-center justify-center gap-1 flex-1 md:flex-none">↗️ เปิดจอแยก</button>
                     <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md flex-1 md:flex-none">🖨️ พิมพ์รายงานยอดขาย</button>
                 </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500"><h3 class="text-gray-500 font-medium">ยอดขายรวมวันนี้</h3><p class="text-4xl font-bold text-teal-600 mt-2">{{ todayTotal.toLocaleString() }} <span class="text-xl">บาท</span></p></div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-gray-400"><h3 class="text-gray-500 font-medium">จำนวนบิลที่ออกวันนี้</h3><p class="text-4xl font-bold text-gray-700 mt-2">{{ todayBills.length }} <span class="text-xl">ใบ</span></p></div>
+
+            <!-- กล่องสรุปยอดขาย (รายวัน & รายเดือน) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500">
+                    <h3 class="text-gray-500 font-medium">ยอดขายรายวัน</h3>
+                    <p class="text-3xl font-bold text-teal-600 mt-2">{{ selectedDateTotal.toLocaleString() }} <span class="text-xl">฿</span></p>
+                    <p class="text-xs text-gray-400 mt-1">ประจำวันที่เลือก</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                    <h3 class="text-gray-500 font-medium">ยอดขายรวมทั้งเดือน</h3>
+                    <p class="text-3xl font-bold text-purple-600 mt-2">{{ selectedMonthTotal.toLocaleString() }} <span class="text-xl">฿</span></p>
+                    <p class="text-xs text-gray-400 mt-1">เดือน: {{ displaySelectedMonth }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-gray-400">
+                    <h3 class="text-gray-500 font-medium">จำนวนบิลรายวัน</h3>
+                    <p class="text-3xl font-bold text-gray-700 mt-2">{{ selectedDateBills.length }} <span class="text-xl">ใบ</span></p>
+                    <p class="text-xs text-gray-400 mt-1">ประจำวันที่เลือก</p>
+                </div>
             </div>
+
             <div class="bg-white p-6 rounded-xl shadow-sm">
                 <div class="flex justify-between items-center mb-1"><h3 class="text-lg font-semibold text-gray-800">📈 วิเคราะห์: ยอดขายสะสม เทียบกับ สต็อกคงเหลือ</h3></div>
                 <p class="text-sm text-gray-500 mb-4">แสดงข้อมูลสินค้าขายดี 15 อันดับแรก</p>
                 <div class="relative w-full" :class="isStandaloneDashboard ? 'h-[450px]' : 'h-72 md:h-96'"><canvas id="salesStockChart"></canvas></div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                <h3 class="text-lg font-semibold mb-4">บิลการขายประจำวันที่ {{ formattedSelectedDate }}</h3>
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th></tr></thead>
+                    <tbody>
+                        <tr v-for="b in selectedDateBills" :key="b.id" class="border-b hover:bg-gray-50">
+                            <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleTimeString('th-TH') }}</td>
+                            <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
+                            <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
+                            <td class="p-3 text-right font-bold text-teal-600">{{ b.total.toLocaleString() }}</td>
+                        </tr>
+                        <tr v-if="selectedDateBills.length === 0">
+                            <td colspan="4" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่มีบิลในวันที่เลือก</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -101,14 +141,11 @@
         <div v-show="currentTab === 'history'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลัง</h2>
-                    <p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ)</p>
+                    <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลังทั้งหมด</h2>
+                    <p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ จากทั้งหมด {{ bills.length }} บิล)</p>
                 </div>
                 <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                     <input v-model="historySearch" type="text" placeholder="🔍 ค้นหาชื่อลูกค้า หรือเลขบิล..." class="border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-64 bg-gray-50">
-                    <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md w-full md:w-auto whitespace-nowrap">
-                        🖨️ พิมพ์รายงานยอดขาย
-                    </button>
                 </div>
             </div>
             
@@ -154,7 +191,6 @@
                 <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-100">
                     <h3 class="font-bold text-blue-800 text-lg mb-4">⚡ แก้ไขและอัปเดตข้อมูลสินค้าเดิม</h3>
                     <div class="space-y-3">
-                        <!-- เลือกสินค้า -->
                         <div class="flex flex-col md:flex-row gap-3">
                             <select v-model="quickEdit.category" @change="syncCategoryFilter" class="flex-1 border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white font-medium text-blue-800">
                                 <option value="">-- 1. เลือกหมวดหมู่ที่ต้องการแก้ --</option>
@@ -165,8 +201,6 @@
                                 <option v-for="p in products.filter(x => (x.category || 'ทั่วไป') === quickEdit.category)" :value="p.id">{{ p.name }}</option>
                             </select>
                         </div>
-                        
-                        <!-- ฟอร์มแก้ไขรายละเอียด (จะแสดงเมื่อเลือกสินค้าแล้ว) -->
                         <div v-if="quickEdit.productId" class="bg-white p-4 rounded-lg shadow-inner border border-blue-200 mt-2 space-y-3">
                             <div class="flex flex-col md:flex-row gap-3">
                                 <div class="w-full md:w-1/3">
@@ -180,22 +214,11 @@
                                 </div>
                             </div>
                             <div class="flex flex-col md:flex-row gap-3">
-                                <div class="w-1/3">
-                                    <label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label>
-                                    <input v-model="quickEdit.barcode" type="text" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono">
-                                </div>
-                                <div class="w-1/3">
-                                    <label class="text-xs text-gray-500 font-bold mb-1 block">แก้ราคา (฿)</label>
-                                    <input v-model.number="quickEdit.price" type="number" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400">
-                                </div>
-                                <div class="w-1/3">
-                                    <label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label>
-                                    <input v-model.number="quickEdit.stock" type="number" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50">
-                                </div>
+                                <div class="w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label><input v-model="quickEdit.barcode" type="text" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono"></div>
+                                <div class="w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">แก้ราคา (฿)</label><input v-model.number="quickEdit.price" type="number" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400"></div>
+                                <div class="w-1/3"><label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label><input v-model.number="quickEdit.stock" type="number" class="w-full border rounded p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50"></div>
                             </div>
-                            <button @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-2.5 rounded font-bold hover:bg-blue-600 transition shadow-sm mt-1">
-                                💾 บันทึกการแก้ไข
-                            </button>
+                            <button @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-2.5 rounded font-bold hover:bg-blue-600 transition shadow-sm mt-1">💾 บันทึกการแก้ไข</button>
                         </div>
                     </div>
                 </div>
@@ -424,13 +447,13 @@
         <!-- ================= พิมพ์รายงาน ================= -->
         <div v-if="printTarget === 'report'" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
             <h2 :class="shop.paperSize === 'slip' ? 'text-lg text-center' : 'text-3xl text-center'" class="font-bold mb-2">{{ shop.name || 'ชื่อร้าน' }}</h2>
-            <h3 :class="shop.paperSize === 'slip' ? 'text-sm' : 'text-xl'" class="font-medium text-center text-gray-600 mb-4">รายงานยอดขายประจำวัน</h3>
-            <p :class="shop.paperSize === 'slip' ? 'text-xs' : 'text-lg'">วันที่: <strong>{{ currentDate }}</strong></p>
-            <p :class="shop.paperSize === 'slip' ? 'text-xs border-b pb-2' : 'text-lg border-b-2 pb-4'" class="mb-4">บิล: {{ todayBills.length }} ใบ | <span class="font-bold">รวม: {{ todayTotal.toLocaleString() }} ฿</span></p>
+            <h3 :class="shop.paperSize === 'slip' ? 'text-sm' : 'text-xl'" class="font-medium text-center text-gray-600 mb-4">รายงานยอดขายรายวัน</h3>
+            <p :class="shop.paperSize === 'slip' ? 'text-xs' : 'text-lg'">ประจำวันที่: <strong>{{ formattedSelectedDate }}</strong></p>
+            <p :class="shop.paperSize === 'slip' ? 'text-xs border-b pb-2' : 'text-lg border-b-2 pb-4'" class="mb-4">บิล: {{ selectedDateBills.length }} ใบ | <span class="font-bold">รวม: {{ selectedDateTotal.toLocaleString() }} ฿</span></p>
             <table class="w-full text-left border-collapse" :class="shop.paperSize === 'slip' ? 'text-xs' : ''">
                 <thead><tr class="bg-gray-100 text-gray-700 border-b border-gray-800"><th class="p-2">บิล / ลูกค้า</th><th class="p-2 text-right">ยอดรวม</th></tr></thead>
                 <tbody>
-                    <tr v-for="b in todayBills" :key="b.id" class="border-b"><td class="p-2">INV-{{ b.billNumber }}<br><span class="text-gray-500">{{ b.customerName || 'ทั่วไป' }}</span></td><td class="p-2 text-right font-medium text-teal-700">{{ b.total.toLocaleString() }}</td></tr>
+                    <tr v-for="b in selectedDateBills" :key="b.id" class="border-b"><td class="p-2">INV-{{ b.billNumber }}<br><span class="text-gray-500">{{ b.customerName || 'ทั่วไป' }}</span></td><td class="p-2 text-right font-medium text-teal-700">{{ b.total.toLocaleString() }}</td></tr>
                 </tbody>
             </table>
         </div>
@@ -481,6 +504,12 @@
 
         createApp({
             data() {
+                // ดึงวันที่ปัจจุบัน (Local Time) ให้ถูกต้อง
+                const today = new Date();
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const d = String(today.getDate()).padStart(2, '0');
+                
                 return {
                     currentTab: isStandalone ? 'dashboard' : 'create',
                     isStandaloneDashboard: isStandalone,
@@ -491,14 +520,17 @@
                     localDeviceName: localStorage.getItem('easybill_device_name') || '',
                     
                     newProduct: { category: '', barcode: '', name: '', price: '', stock: '' },
-                    // เปลี่ยนโครงสร้าง quickEdit ให้มี newCategory และ newName
                     quickEdit: { category: '', productId: '', newCategory: '', newName: '', barcode: '', price: '', stock: '' },
                     inventoryCategory: 'ทั้งหมด',
                     
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
-                    selectedCategory: 'ทั้งหมด', searchQuery: '', scannedBarcode: '', manualItem: { name: '', price: '', qty: 1 },
+                    selectedDate: `${y}-${m}-${d}`, // วันที่ที่เลือกบนปฏิทิน
+                    selectedCategory: 'ทั้งหมด', 
+                    searchQuery: '', 
+                    scannedBarcode: '', 
+                    manualItem: { name: '', price: '', qty: 1 },
                     historySearch: '',
                     
                     printTarget: 'create', viewingBill: null, chartInstance: null
@@ -507,6 +539,43 @@
             computed: {
                 currentDate() { return new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }); },
                 totalAmount() { return this.bill.items.reduce((sum, item) => sum + (item.price * item.qty), 0); },
+                
+                // คำนวณวันที่สำหรับแสดงผล
+                formattedSelectedDate() {
+                    if(!this.selectedDate) return '';
+                    return new Date(this.selectedDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+                },
+                displaySelectedMonth() {
+                    if(!this.selectedDate) return '';
+                    return new Date(this.selectedDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+                },
+
+                // กรองบิลตามวันที่เลือก
+                selectedDateBills() {
+                    if(!this.selectedDate) return [];
+                    return this.bills.filter(b => {
+                        const bDate = new Date(b.timestamp);
+                        const by = bDate.getFullYear();
+                        const bm = String(bDate.getMonth() + 1).padStart(2, '0');
+                        const bd = String(bDate.getDate()).padStart(2, '0');
+                        return `${by}-${bm}-${bd}` === this.selectedDate;
+                    });
+                },
+                selectedDateTotal() { return this.selectedDateBills.reduce((sum, b) => sum + b.total, 0); },
+                
+                // กรองยอดขายรวมทั้งเดือน (ตามเดือนของวันที่เลือก)
+                selectedMonthTotal() {
+                    if(!this.selectedDate) return 0;
+                    const prefix = this.selectedDate.substring(0, 7); // ได้เป็น YYYY-MM
+                    return this.bills.filter(b => {
+                        const bDate = new Date(b.timestamp);
+                        const by = bDate.getFullYear();
+                        const bm = String(bDate.getMonth() + 1).padStart(2, '0');
+                        return `${by}-${bm}` === prefix;
+                    }).reduce((sum, b) => sum + b.total, 0);
+                },
+
+                // ตัวแปรเก่าที่ใช้แสดงผลวันนี้ เอาไว้เผื่อใช้หน้าอื่น
                 todayBills() { return this.bills.filter(b => new Date(b.timestamp).toLocaleDateString('th-TH') === new Date().toLocaleDateString('th-TH')); },
                 todayTotal() { return this.todayBills.reduce((sum, b) => sum + b.total, 0); },
                 
@@ -642,7 +711,6 @@
                     if(!this.quickEdit.productId) return;
                     const p = this.products.find(x => x.id === this.quickEdit.productId);
                     if(p) { 
-                        // ดึงข้อมูลเดิมมาใส่ฟอร์ม
                         this.quickEdit.newName = p.name;
                         this.quickEdit.newCategory = p.category || 'ทั่วไป';
                         this.quickEdit.barcode = p.barcode || ''; 
@@ -666,10 +734,9 @@
                         stock: Number(this.quickEdit.stock) 
                     });
 
-                    if(prod) this.logActivity('แก้ไขสินค้า', `อัปเดต "${finalName}" | หมวดหมู่: ${finalCategory} | ราคา: ${this.quickEdit.price}`);
+                    if(prod) this.logActivity('แก้ไขสินค้า', `อัปเดต "${finalName}"`);
                     alert('อัปเดตข้อมูลสำเร็จ!');
                     
-                    // เคลียร์ฟอร์ม
                     this.quickEdit = { category: '', productId: '', newCategory: '', newName: '', barcode: '', price: '', stock: '' }; 
                     this.inventoryCategory = 'ทั้งหมด';
                 },
