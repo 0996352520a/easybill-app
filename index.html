@@ -70,27 +70,28 @@
                 </div>
             </div>
 
+            <!-- กล่องสรุปยอดขาย (รายวัน & รายเดือน) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500"><h3 class="text-gray-500 font-medium">ยอดขายรายวัน</h3><p class="text-3xl font-bold text-teal-600 mt-2">{{ selectedDateTotal.toLocaleString() }} <span class="text-xl">฿</span></p><p class="text-xs text-gray-400 mt-1">ประจำวันที่เลือก</p></div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500"><h3 class="text-gray-500 font-medium">ยอดขายรวมทั้งเดือน</h3><p class="text-3xl font-bold text-purple-600 mt-2">{{ selectedMonthTotal.toLocaleString() }} <span class="text-xl">฿</span></p><p class="text-xs text-gray-400 mt-1">เดือน: {{ displaySelectedMonth }}</p></div>
-                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-gray-400"><h3 class="text-gray-500 font-medium">จำนวนบิลรายวัน</h3><p class="text-3xl font-bold text-gray-700 mt-2">{{ selectedDateBills.length }} <span class="text-xl">ใบ</span></p><p class="text-xs text-gray-400 mt-1">ประจำวันที่เลือก</p></div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-teal-500">
+                    <h3 class="text-gray-500 font-medium">ยอดขายรายวัน</h3>
+                    <p class="text-3xl font-bold text-teal-600 mt-2">{{ selectedDateTotal.toLocaleString() }} <span class="text-xl">฿</span></p>
+                    <p class="text-xs text-gray-400 mt-1">ประจำวันที่เลือก</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500">
+                    <h3 class="text-gray-500 font-medium">ยอดขายรวมทั้งเดือน</h3>
+                    <p class="text-3xl font-bold text-purple-600 mt-2">{{ selectedMonthTotal.toLocaleString() }} <span class="text-xl">฿</span></p>
+                    <p class="text-xs text-gray-400 mt-1">เดือน: {{ displaySelectedMonth }}</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-gray-400">
+                    <h3 class="text-gray-500 font-medium">จำนวนบิลรายวัน</h3>
+                    <p class="text-3xl font-bold text-gray-700 mt-2">{{ selectedDateBills.length }} <span class="text-xl">ใบ</span></p>
+                    <p class="text-xs text-gray-400 mt-1">ประจำวันที่เลือก</p>
+                </div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">📈 วิเคราะห์: ยอดขายสะสม เทียบกับ สต็อกคงเหลือ</h3>
-                        <p class="text-sm text-gray-500">แสดงข้อมูลสินค้าขายดี 15 อันดับแรก</p>
-                    </div>
-                    <!-- 📂 เพิ่มตัวกรองหมวดหมู่สำหรับกราฟ -->
-                    <div class="flex items-center gap-3 w-full md:w-auto bg-teal-50 p-2 rounded-lg border border-teal-100">
-                        <span class="text-sm font-bold text-teal-800 whitespace-nowrap">📂 หมวดหมู่:</span>
-                        <select v-model="chartCategory" class="w-full md:w-48 border-none rounded-md p-1 outline-none focus:ring-2 focus:ring-teal-400 bg-white font-medium text-gray-700 shadow-sm text-sm">
-                            <option value="ทั้งหมด">-- แสดงทั้งหมด --</option>
-                            <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
-                        </select>
-                    </div>
-                </div>
+                <div class="flex justify-between items-center mb-1"><h3 class="text-lg font-semibold text-gray-800">📈 วิเคราะห์: ยอดขายสะสม เทียบกับ สต็อกคงเหลือ</h3></div>
+                <p class="text-sm text-gray-500 mb-4">แสดงข้อมูลสินค้าขายดี 15 อันดับแรก</p>
                 <div class="relative w-full" :class="isStandaloneDashboard ? 'h-[450px]' : 'h-72 md:h-96'"><canvas id="salesStockChart"></canvas></div>
             </div>
             
@@ -105,7 +106,9 @@
                             <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
                             <td class="p-3 text-right font-bold text-teal-600">{{ b.total.toLocaleString() }}</td>
                         </tr>
-                        <tr v-if="selectedDateBills.length === 0"><td colspan="4" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่มีบิลในวันที่เลือก</td></tr>
+                        <tr v-if="selectedDateBills.length === 0">
+                            <td colspan="4" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่มีบิลในวันที่เลือก</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -114,7 +117,10 @@
         <!-- ================= ประวัติกิจกรรม ================= -->
         <div v-show="currentTab === 'logs'" class="no-print space-y-6">
             <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500 flex justify-between items-center">
-                <div><h2 class="text-xl font-bold text-gray-700">📋 บันทึกประวัติกิจกรรม (Activity Log)</h2><p class="text-sm text-gray-500">ตรวจสอบการทำงานย้อนหลัง ข้อมูลนี้ไม่สามารถลบได้เพื่อความโปร่งใส</p></div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-700">📋 บันทึกประวัติกิจกรรม (Activity Log)</h2>
+                    <p class="text-sm text-gray-500">ตรวจสอบการทำงานย้อนหลัง ข้อมูลนี้ไม่สามารถลบได้เพื่อความโปร่งใส</p>
+                </div>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
                 <table class="w-full text-left border-collapse min-w-[700px]">
@@ -134,7 +140,10 @@
         <!-- ================= ประวัติการขาย (ระบบค้นหาลูกค้า) ================= -->
         <div v-show="currentTab === 'history'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
-                <div><h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลังทั้งหมด</h2><p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ จากทั้งหมด {{ bills.length }} บิล)</p></div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลังทั้งหมด</h2>
+                    <p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ จากทั้งหมด {{ bills.length }} บิล)</p>
+                </div>
                 <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                     <input v-model="historySearch" type="text" placeholder="🔍 ค้นหาชื่อลูกค้า หรือเลขบิล..." class="border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-64 bg-gray-50">
                 </div>
@@ -144,7 +153,12 @@
                 <table class="w-full text-left border-collapse min-w-[850px]">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600">
-                            <th class="p-3 w-32">เวลา</th><th class="p-3 w-28">เลขที่บิล</th><th class="p-3 w-40">ลูกค้า</th><th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th><th class="p-3 text-right w-28">ยอดรวม (฿)</th><th class="p-3 text-center w-48">จัดการ</th>
+                            <th class="p-3 w-32">เวลา</th>
+                            <th class="p-3 w-28">เลขที่บิล</th>
+                            <th class="p-3 w-40">ลูกค้า</th>
+                            <th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th>
+                            <th class="p-3 text-right w-28">ยอดรวม (฿)</th>
+                            <th class="p-3 text-center w-48">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -152,7 +166,9 @@
                             <td class="p-3 text-xs text-gray-500">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
                             <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
                             <td class="p-3 font-medium text-teal-700">{{ b.customerName || 'ทั่วไป' }}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">{{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}</td>
+                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">
+                                {{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}
+                            </td>
                             <td class="p-3 text-right font-medium text-gray-800">{{ b.total.toLocaleString() }}</td>
                             <td class="p-3 text-center flex justify-center gap-1">
                                 <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
@@ -160,7 +176,9 @@
                                 <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
                             </td>
                         </tr>
-                        <tr v-if="filteredHistoryBills.length === 0"><td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td></tr>
+                        <tr v-if="filteredHistoryBills.length === 0">
+                            <td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -486,6 +504,7 @@
 
         createApp({
             data() {
+                // ดึงวันที่ปัจจุบัน (Local Time) ให้ถูกต้อง
                 const today = new Date();
                 const y = today.getFullYear();
                 const m = String(today.getMonth() + 1).padStart(2, '0');
@@ -507,9 +526,8 @@
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
-                    selectedDate: `${y}-${m}-${d}`, 
+                    selectedDate: `${y}-${m}-${d}`, // วันที่ที่เลือกบนปฏิทิน
                     selectedCategory: 'ทั้งหมด', 
-                    chartCategory: 'ทั้งหมด', // เพิ่มตัวแปรสำหรับหมวดหมู่กราฟ
                     searchQuery: '', 
                     scannedBarcode: '', 
                     manualItem: { name: '', price: '', qty: 1 },
@@ -522,6 +540,7 @@
                 currentDate() { return new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }); },
                 totalAmount() { return this.bill.items.reduce((sum, item) => sum + (item.price * item.qty), 0); },
                 
+                // คำนวณวันที่สำหรับแสดงผล
                 formattedSelectedDate() {
                     if(!this.selectedDate) return '';
                     return new Date(this.selectedDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -531,6 +550,7 @@
                     return new Date(this.selectedDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
                 },
 
+                // กรองบิลตามวันที่เลือก
                 selectedDateBills() {
                     if(!this.selectedDate) return [];
                     return this.bills.filter(b => {
@@ -543,9 +563,10 @@
                 },
                 selectedDateTotal() { return this.selectedDateBills.reduce((sum, b) => sum + b.total, 0); },
                 
+                // กรองยอดขายรวมทั้งเดือน (ตามเดือนของวันที่เลือก)
                 selectedMonthTotal() {
                     if(!this.selectedDate) return 0;
-                    const prefix = this.selectedDate.substring(0, 7); 
+                    const prefix = this.selectedDate.substring(0, 7); // ได้เป็น YYYY-MM
                     return this.bills.filter(b => {
                         const bDate = new Date(b.timestamp);
                         const by = bDate.getFullYear();
@@ -554,6 +575,7 @@
                     }).reduce((sum, b) => sum + b.total, 0);
                 },
 
+                // ตัวแปรเก่าที่ใช้แสดงผลวันนี้ เอาไว้เผื่อใช้หน้าอื่น
                 todayBills() { return this.bills.filter(b => new Date(b.timestamp).toLocaleDateString('th-TH') === new Date().toLocaleDateString('th-TH')); },
                 todayTotal() { return this.todayBills.reduce((sum, b) => sum + b.total, 0); },
                 
@@ -582,8 +604,7 @@
             watch: {
                 bills: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
                 products: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
-                currentTab(newVal) { if (newVal === 'dashboard') this.$nextTick(() => this.renderChart()); },
-                chartCategory() { if (this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } // อัปเดตกราฟเมื่อเปลี่ยนหมวดหมู่
+                currentTab(newVal) { if (newVal === 'dashboard') this.$nextTick(() => this.renderChart()); }
             },
             mounted() {
                 onSnapshot(doc(db, "settings", "shopInfo"), (docSnap) => { 
@@ -625,16 +646,7 @@
                     if (this.chartInstance) this.chartInstance.destroy();
                     const salesData = {};
                     this.bills.forEach(bill => { bill.items.forEach(item => { if (item.id) salesData[item.id] = (salesData[item.id] || 0) + item.qty; }); });
-                    
-                    // กรองหมวดหมู่ก่อนสร้างข้อมูลกราฟ
-                    let filteredProducts = this.products;
-                    if (this.chartCategory !== 'ทั้งหมด') {
-                        filteredProducts = filteredProducts.filter(p => (p.category || 'ทั่วไป') === this.chartCategory);
-                    }
-
-                    const chartData = filteredProducts.map(p => ({ 
-                        name: p.name, stock: p.stock, sold: salesData[p.id] || 0 
-                    })).sort((a, b) => b.sold - a.sold).slice(0, 15);
+                    const chartData = this.products.map(p => ({ name: p.name, stock: p.stock, sold: salesData[p.id] || 0 })).sort((a, b) => b.sold - a.sold).slice(0, 15);
 
                     this.chartInstance = new Chart(ctx, {
                         type: 'bar',
