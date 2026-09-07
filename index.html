@@ -440,13 +440,24 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-3 mt-4">
-                            <button @click="saveBill(false)" class="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-blue-600 transition">
-                                💾 บันทึกรายการ
+                        <!-- กลุ่มปุ่มควบคุมการขาย -->
+                        <div class="flex flex-col gap-3 mt-4">
+                            <!-- 🔴 ปุ่มแสดง QR Code บนจอลูกค้า -->
+                            <button v-if="shop.promptpay" @click="toggleCustomerQR" 
+                                    :class="bill.showQR ? 'bg-orange-100 text-orange-700 border border-orange-300 hover:bg-orange-200' : 'bg-indigo-600 text-white hover:bg-indigo-700'"
+                                    class="w-full py-3 rounded-xl font-bold text-lg shadow-sm transition flex items-center justify-center gap-2">
+                                <span>{{ bill.showQR ? '❌ ซ่อน QR Code จากหน้าจอลูกค้า' : '📱 ส่ง QR Code ขึ้นหน้าจอลูกค้า' }}</span>
                             </button>
-                            <button @click="saveBill(true)" class="flex-1 bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">
-                                🖨️ บันทึก & สั่งพิมพ์
-                            </button>
+
+                            <!-- แยกปุ่มบันทึก และ ปุ่มพิมพ์ -->
+                            <div class="flex gap-3">
+                                <button @click="saveBill(false)" class="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-blue-600 transition">
+                                    💾 บันทึกรายการ
+                                </button>
+                                <button @click="saveBill(true)" class="flex-1 bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">
+                                    🖨️ บันทึก & สั่งพิมพ์
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -687,8 +698,9 @@
                             <span>{{ (customerData.total || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
                         </div>
                         
-                        <!-- 🔴 โชว์ QR Code ชัดๆ ใหญ่ๆ (เมื่อยังไม่ได้รับเงินมา) -->
-                        <div v-if="shop.promptpay && customerData.total > 0 && !(customerData.received > 0)" class="flex flex-col items-center justify-center pt-8 pb-4">
+                        <!-- 🔴 โชว์ QR Code ชัดๆ ใหญ่ๆ (เฉพาะตอนที่แคชเชียร์กดปุ่ม "แสดง QR") -->
+                        <div v-if="shop.promptpay && customerData.total > 0 && customerData.showQR" class="flex flex-col items-center justify-center pt-8 pb-4">
+                            <p class="text-gray-500 font-bold mb-4 text-2xl">สแกนจ่ายผ่านพร้อมเพย์</p>
                             <img :src="'https://promptpay.io/' + shop.promptpay + '/' + customerData.total + '.png'" alt="QR Code" class="w-72 h-72 lg:w-80 lg:h-80 border-4 border-teal-500 p-3 rounded-3xl shadow-xl bg-white transition-transform transform hover:scale-105">
                         </div>
                     </div>
@@ -762,10 +774,11 @@
                     quickEdit: { category: '', productId: '', newCategory: '', newName: '', barcode: '', cost: '', price: '', stock: '', wholesaleQty: '', wholesalePrice: '' },
                     inventoryCategory: 'ทั้งหมด',
                     
-                    bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null, discountAmount: 0, discountNote: '' },
+                    // 🔴 เพิ่มตัวแปร showQR เพื่อใช้ควบคุมการแสดงบนจอลูกค้า
+                    bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null, discountAmount: 0, discountNote: '', showQR: false },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
-                    customerData: { items: [], subTotal: 0, discount: 0, total: 0, received: 0, change: 0 },
+                    customerData: { items: [], subTotal: 0, discount: 0, total: 0, received: 0, change: 0, showQR: false },
                     
                     selectedDate: `${y}-${m}-${d}`, 
                     selectedCategory: 'ทั้งหมด', 
@@ -915,6 +928,15 @@
                 }
             },
             methods: {
+                // 🔴 ปุ่มสำหรับเปิด/ปิดการโชว์ QR บนจอหลัก
+                toggleCustomerQR() {
+                    if (this.totalAmount <= 0) {
+                        alert('ยอดชำระต้องมากกว่า 0 บาท จึงจะสามารถสร้าง QR Code ได้ครับ');
+                        return;
+                    }
+                    this.bill.showQR = !this.bill.showQR;
+                },
+
                 syncCustomerDisplay() {
                     const data = {
                         items: this.bill.items,
@@ -922,7 +944,8 @@
                         discount: this.bill.discountAmount || 0,
                         total: this.totalAmount,
                         received: this.bill.receivedAmount || 0,
-                        change: (this.bill.receivedAmount || 0) > this.totalAmount ? ((this.bill.receivedAmount || 0) - this.totalAmount) : 0
+                        change: (this.bill.receivedAmount || 0) > this.totalAmount ? ((this.bill.receivedAmount || 0) - this.totalAmount) : 0,
+                        showQR: this.bill.showQR || false // 🔴 ส่งสถานะการกดปุ่มไปให้จอลูกค้าด้วย
                     };
                     localStorage.setItem('easybill_customer_sync', JSON.stringify(data));
                 },
@@ -1222,12 +1245,14 @@
 
                     this.logActivity('ออกบิล', `ออกบิล INV-${this.billNumber} ยอดรวม ${this.totalAmount.toLocaleString()} บาท ${shouldPrint ? '(พิมพ์)' : '(ไม่พิมพ์)'}`);
 
+                    // 🔴 ฟังก์ชันล้างหน้าจอเตรียมรับลูกค้าใหม่
                     const resetForm = () => {
                         this.bill.items = []; 
                         this.bill.customerName = ''; 
                         this.bill.receivedAmount = null; 
                         this.bill.discountAmount = 0;
                         this.bill.discountNote = '';
+                        this.bill.showQR = false; // ปิด QR Code ให้ลูกค้าด้วย
                         this.billNumber = Math.floor(Math.random() * 90000) + 10000;
                     };
 
@@ -1264,6 +1289,7 @@
                             this.bill.receivedAmount = billData.receivedAmount || null; 
                             this.bill.discountAmount = billData.discountAmount || 0;
                             this.bill.discountNote = billData.discountNote || '';
+                            this.bill.showQR = false;
                             this.bill.items = JSON.parse(JSON.stringify(billData.items)); 
                             this.billNumber = billData.billNumber;
                             this.currentTab = 'create';
