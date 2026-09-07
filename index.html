@@ -698,10 +698,10 @@
                             <span>{{ (customerData.total || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
                         </div>
                         
-                        <!-- 🔴 โชว์ QR Code ชัดๆ ใหญ่ๆ (เฉพาะตอนที่แคชเชียร์กดปุ่ม "แสดง QR") -->
-                        <div v-if="shop.promptpay && customerData.total > 0 && customerData.showQR" class="flex flex-col items-center justify-center pt-8 pb-4">
+                        <!-- 🔴 โชว์ QR Code ชัดๆ ใหญ่ๆ (เฉพาะตอนที่แคชเชียร์กดปุ่ม "แสดง QR" และยังไม่คีย์รับเงิน) -->
+                        <div v-if="customerData.promptpay && customerData.total > 0 && customerData.showQR && !(customerData.received >= customerData.total)" class="flex flex-col items-center justify-center pt-8 pb-4">
                             <p class="text-gray-500 font-bold mb-4 text-2xl">สแกนจ่ายผ่านพร้อมเพย์</p>
-                            <img :src="'https://promptpay.io/' + shop.promptpay + '/' + customerData.total + '.png'" alt="QR Code" class="w-72 h-72 lg:w-80 lg:h-80 border-4 border-teal-500 p-3 rounded-3xl shadow-xl bg-white transition-transform transform hover:scale-105">
+                            <img :src="'https://promptpay.io/' + customerData.promptpay + '/' + customerData.total + '.png'" alt="QR Code" class="w-72 h-72 lg:w-80 lg:h-80 border-4 border-teal-500 p-3 rounded-3xl shadow-xl bg-white transition-transform transform hover:scale-105">
                         </div>
                     </div>
                     
@@ -765,7 +765,7 @@
                     isStandaloneDashboard: isStandalone,
                     isCustomerDisplay: isCustomer,
                     
-                    shop: { name: '', address: '', paperSize: 'a4', promptpay: '' },
+                    shop: { name: '', address: '', paperSize: 'a4', promptpay: '' }, 
                     products: [], bills: [], activityLogs: [],
                     
                     localDeviceName: localStorage.getItem('easybill_device_name') || '',
@@ -778,7 +778,7 @@
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null, discountAmount: 0, discountNote: '', showQR: false },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
-                    customerData: { items: [], subTotal: 0, discount: 0, total: 0, received: 0, change: 0, showQR: false },
+                    customerData: { items: [], subTotal: 0, discount: 0, total: 0, received: 0, change: 0, showQR: false, promptpay: '' },
                     
                     selectedDate: `${y}-${m}-${d}`, 
                     selectedCategory: 'ทั้งหมด', 
@@ -928,13 +928,14 @@
                 }
             },
             methods: {
-                // 🔴 ปุ่มสำหรับเปิด/ปิดการโชว์ QR บนจอหลัก
+                // 🔴 ปุ่มสำหรับบังคับเปิด/ปิดการโชว์ QR บนจอลูกค้า
                 toggleCustomerQR() {
                     if (this.totalAmount <= 0) {
                         alert('ยอดชำระต้องมากกว่า 0 บาท จึงจะสามารถสร้าง QR Code ได้ครับ');
                         return;
                     }
                     this.bill.showQR = !this.bill.showQR;
+                    this.syncCustomerDisplay(); // บังคับส่งข้อมูลไปจอลูกค้าทันที
                 },
 
                 syncCustomerDisplay() {
@@ -945,7 +946,8 @@
                         total: this.totalAmount,
                         received: this.bill.receivedAmount || 0,
                         change: (this.bill.receivedAmount || 0) > this.totalAmount ? ((this.bill.receivedAmount || 0) - this.totalAmount) : 0,
-                        showQR: this.bill.showQR || false // 🔴 ส่งสถานะการกดปุ่มไปให้จอลูกค้าด้วย
+                        showQR: this.bill.showQR || false, // 🔴 ส่งสถานะการกดปุ่มไปให้จอลูกค้าด้วย
+                        promptpay: this.shop.promptpay || '' // 🔴 ส่งเบอร์พร้อมเพย์ไปให้จอลูกค้าด้วยเพื่อความชัวร์
                     };
                     localStorage.setItem('easybill_customer_sync', JSON.stringify(data));
                 },
