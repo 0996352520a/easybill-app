@@ -88,22 +88,10 @@
                 </div>
 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-teal-500">
-                        <h3 class="text-gray-500 text-sm font-medium">ยอดขายรายวัน</h3>
-                        <p class="text-2xl font-bold text-teal-600 mt-1">{{ selectedDateTotal.toLocaleString() }} ฿</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500">
-                        <h3 class="text-gray-500 text-sm font-medium">กำไรรายวัน</h3>
-                        <p class="text-2xl font-bold text-green-600 mt-1">{{ selectedDateProfit.toLocaleString() }} ฿</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
-                        <h3 class="text-gray-500 text-sm font-medium">ยอดขายทั้งเดือน</h3>
-                        <p class="text-2xl font-bold text-purple-600 mt-1">{{ selectedMonthTotal.toLocaleString() }} ฿</p>
-                    </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500">
-                        <h3 class="text-gray-500 text-sm font-medium">กำไรทั้งเดือน</h3>
-                        <p class="text-2xl font-bold text-indigo-600 mt-1">{{ selectedMonthProfit.toLocaleString() }} ฿</p>
-                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-teal-500"><h3 class="text-gray-500 text-sm font-medium">ยอดขายรายวัน</h3><p class="text-2xl font-bold text-teal-600 mt-1">{{ selectedDateTotal.toLocaleString() }} ฿</p></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500"><h3 class="text-gray-500 text-sm font-medium">กำไรรายวัน</h3><p class="text-2xl font-bold text-green-600 mt-1">{{ selectedDateProfit.toLocaleString() }} ฿</p></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500"><h3 class="text-gray-500 text-sm font-medium">ยอดขายทั้งเดือน</h3><p class="text-2xl font-bold text-purple-600 mt-1">{{ selectedMonthTotal.toLocaleString() }} ฿</p></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500"><h3 class="text-gray-500 text-sm font-medium">กำไรทั้งเดือน</h3><p class="text-2xl font-bold text-indigo-600 mt-1">{{ selectedMonthProfit.toLocaleString() }} ฿</p></div>
                 </div>
 
                 <div class="bg-white p-6 rounded-xl shadow-sm">
@@ -335,7 +323,6 @@
                         <p class="text-xs text-gray-500 mt-2">* ชื่อนี้จะถูกบันทึกใน <strong>ประวัติกิจกรรม</strong> เพื่อให้รู้ว่าใคร/เครื่องไหนเป็นคนทำรายการ</p>
                     </div>
                     
-                    <!-- ส่วนตั้งค่า PromptPay -->
                     <div class="bg-teal-50 p-4 rounded-lg border border-teal-100">
                         <label class="block text-sm text-teal-800 font-bold mb-1">💳 เบอร์พร้อมเพย์ / เลขบัตรประชาชน (สำหรับรับเงิน)</label>
                         <input v-model="shop.promptpay" type="text" placeholder="เช่น 0812345678" class="w-full border rounded-lg p-3 bg-white font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-400">
@@ -520,7 +507,6 @@
                                         <div v-if="bill.receivedAmount > 0" class="flex justify-between font-bold text-2xl text-green-700 pt-2 border-t border-teal-200"><span>เงินทอน:</span><span>{{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
                                     </div>
                                 </div>
-                                <!-- 🔴 แสดง QR Code เฉพาะเมื่อมียอดเงิน และตั้งค่าเบอร์ไว้ -->
                                 <div v-if="shop.promptpay && totalAmount > 0" class="flex flex-col items-center border-t border-dashed border-gray-300 pt-6">
                                     <p class="text-sm font-bold text-gray-600 mb-2">สแกนจ่ายผ่านพร้อมเพย์ (PromptPay)</p>
                                     <img :src="'https://promptpay.io/' + shop.promptpay + '/' + totalAmount + '.png'" alt="QR Code" class="w-32 h-32 border p-1 rounded-lg">
@@ -572,7 +558,6 @@
                             <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
                             <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
                             
-                            <!-- 🔴 แสดง QR Code ในสลิป -->
                             <div v-if="shop.promptpay && totalAmount > 0" class="text-center mt-3 border-t border-dashed border-gray-400 pt-3">
                                 <p class="text-[10px] font-bold mb-1">สแกนจ่ายพร้อมเพย์</p>
                                 <img :src="'https://promptpay.io/' + shop.promptpay + '/' + totalAmount + '.png'" alt="QR Code" class="w-20 h-20 mx-auto block">
@@ -635,7 +620,6 @@
                 <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
                 <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
                 
-                <!-- 🔴 แสดง QR Code ในบิลย้อนหลัง -->
                 <div v-if="shop.promptpay && viewingBill.total > 0" class="text-center mt-3 border-t border-dashed border-gray-400 pt-3">
                     <p class="text-[10px] font-bold mb-1">สแกนจ่ายพร้อมเพย์</p>
                     <img :src="'https://promptpay.io/' + shop.promptpay + '/' + viewingBill.total + '.png'" alt="QR Code" class="w-20 h-20 mx-auto block">
@@ -656,6 +640,7 @@
             </div>
             
             <div class="flex-1 flex flex-col lg:flex-row gap-6 mt-6 overflow-hidden">
+                <!-- ฝั่งซ้าย: รายการสินค้า -->
                 <div class="flex-[2] bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden border border-gray-200">
                     <div class="p-5 bg-gray-100 border-b-2 border-gray-200 font-bold text-2xl flex text-gray-700">
                         <div class="flex-[3]">รายการสินค้า</div>
@@ -686,6 +671,7 @@
                     </div>
                 </div>
                 
+                <!-- ฝั่งขวา: สรุปยอดเงิน -->
                 <div class="flex-1 bg-white rounded-2xl shadow-lg flex flex-col justify-between p-8 border border-gray-200">
                     <div class="space-y-8">
                         <div class="flex justify-between items-center text-3xl text-gray-600 font-medium">
@@ -701,17 +687,17 @@
                             <span>{{ (customerData.total || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
                         </div>
                         
-                        <!-- 🔴 ส่วนของ QR Code สำหรับให้ลูกค้าสแกนจ่าย -->
-                        <div v-if="shop.promptpay && customerData.total > 0" class="flex flex-col items-center justify-center pt-6">
-                            <p class="text-gray-500 font-bold mb-2 text-lg">สแกนจ่ายผ่านพร้อมเพย์</p>
-                            <img :src="'https://promptpay.io/' + shop.promptpay + '/' + customerData.total + '.png'" alt="QR Code" class="w-48 h-48 border-4 border-teal-500 p-2 rounded-xl shadow-md">
+                        <!-- 🔴 โชว์ QR Code ชัดๆ ใหญ่ๆ (เมื่อยังไม่ได้รับเงินมา) -->
+                        <div v-if="shop.promptpay && customerData.total > 0 && !(customerData.received > 0)" class="flex flex-col items-center justify-center pt-8 pb-4">
+                            <img :src="'https://promptpay.io/' + shop.promptpay + '/' + customerData.total + '.png'" alt="QR Code" class="w-72 h-72 lg:w-80 lg:h-80 border-4 border-teal-500 p-3 rounded-3xl shadow-xl bg-white transition-transform transform hover:scale-105">
                         </div>
                     </div>
                     
-                    <div class="mt-8 bg-gray-50 p-8 rounded-2xl border-2 border-gray-200 space-y-8">
+                    <!-- โชว์เงินรับ/เงินทอน เฉพาะตอนที่แคชเชียร์คีย์รับเงิน -->
+                    <div v-if="customerData.received > 0" class="mt-8 bg-gray-50 p-8 rounded-2xl border-2 border-gray-200 space-y-8">
                         <div class="flex justify-between items-center text-4xl">
                             <span class="text-gray-600 font-medium">รับเงินมา</span>
-                            <span class="font-bold text-gray-800">{{ customerData.received > 0 ? customerData.received.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' ฿' : '-' }}</span>
+                            <span class="font-bold text-gray-800">{{ customerData.received.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
                         </div>
                         <div class="pt-8 border-t-4 border-dashed border-gray-300 flex justify-between items-center text-5xl">
                             <span class="text-gray-600 font-bold">เงินทอน</span>
@@ -767,7 +753,7 @@
                     isStandaloneDashboard: isStandalone,
                     isCustomerDisplay: isCustomer,
                     
-                    shop: { name: '', address: '', paperSize: 'a4', promptpay: '' }, // เพิ่ม promptpay ใน data
+                    shop: { name: '', address: '', paperSize: 'a4', promptpay: '' },
                     products: [], bills: [], activityLogs: [],
                     
                     localDeviceName: localStorage.getItem('easybill_device_name') || '',
