@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EasyBill - ระบบออกใบเสร็จและแดชบอร์ด</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js สำหรับทำกราฟ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
@@ -36,9 +34,8 @@
 <body class="bg-gray-100 min-h-screen text-gray-800">
     <div id="app" class="max-w-6xl mx-auto p-4 md:p-6">
         
-        <!-- เมนูหลัก -->
         <div v-if="!isStandaloneDashboard" class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
-            <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">☁️ Cloud</span></h1>
+            <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"><span v-if="isOnline">☁️ Online</span><span v-else class="text-orange-700 bg-orange-100">⚡ Offline</span></span></h1>
             
             <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">📊 ยอดขาย</button>
             <button @click="currentTab = 'create'" :class="currentTab === 'create' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">สร้างบิล</button>
@@ -48,10 +45,21 @@
             <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
         </div>
 
-        <!-- แบนเนอร์หัวจอ (โหมดแยกหน้าต่าง) -->
         <div v-if="isStandaloneDashboard" class="no-print bg-gray-800 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center">
             <div class="flex items-center gap-3"><span class="text-2xl">📊</span><div><h1 class="font-bold text-lg leading-tight">{{ shop.name || 'EasyBill' }} - Live Dashboard</h1><p class="text-xs text-gray-300">อัปเดตข้อมูล Real-time</p></div></div>
-            <div class="text-right"><p class="text-lg font-bold text-teal-400">{{ currentDate }}</p><p class="text-sm text-gray-400"><span class="animate-pulse inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>เชื่อมต่อ Cloud แล้ว</p></div>
+            <div class="text-right">
+                <p class="text-lg font-bold text-teal-400">{{ currentDate }}</p>
+                <p class="text-sm" :class="isOnline ? 'text-gray-400' : 'text-orange-400'">
+                    <span v-if="isOnline" class="animate-pulse inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                    <span v-else class="inline-block w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
+                    {{ isOnline ? 'เชื่อมต่อ Cloud แล้ว' : 'ทำงานโหมดออฟไลน์' }}
+                </p>
+            </div>
+        </div>
+
+        <div v-if="!isOnline" class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded-lg no-print">
+            <p class="font-bold">⚠️ ขาดการเชื่อมต่ออินเทอร์เน็ต!</p>
+            <p class="text-sm">คุณยังสามารถออกบิลและใช้งานระบบได้ปกติ ข้อมูลจะถูกบันทึกไว้ในเครื่อง และจะส่งขึ้นระบบอัตโนมัติเมื่ออินเทอร์เน็ตกลับมา</p>
         </div>
 
         <!-- ================= แดชบอร์ดและกราฟ ================= -->
@@ -71,22 +79,10 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-teal-500">
-                    <h3 class="text-gray-500 text-sm font-medium">ยอดขายรายวัน</h3>
-                    <p class="text-2xl font-bold text-teal-600 mt-1">{{ selectedDateTotal.toLocaleString() }} ฿</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500">
-                    <h3 class="text-gray-500 text-sm font-medium">กำไรรายวัน</h3>
-                    <p class="text-2xl font-bold text-green-600 mt-1">{{ selectedDateProfit.toLocaleString() }} ฿</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
-                    <h3 class="text-gray-500 text-sm font-medium">ยอดขายทั้งเดือน</h3>
-                    <p class="text-2xl font-bold text-purple-600 mt-1">{{ selectedMonthTotal.toLocaleString() }} ฿</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500">
-                    <h3 class="text-gray-500 text-sm font-medium">กำไรทั้งเดือน</h3>
-                    <p class="text-2xl font-bold text-indigo-600 mt-1">{{ selectedMonthProfit.toLocaleString() }} ฿</p>
-                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-teal-500"><h3 class="text-gray-500 text-sm font-medium">ยอดขายรายวัน</h3><p class="text-2xl font-bold text-teal-600 mt-1">{{ selectedDateTotal.toLocaleString() }} ฿</p></div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500"><h3 class="text-gray-500 text-sm font-medium">กำไรรายวัน</h3><p class="text-2xl font-bold text-green-600 mt-1">{{ selectedDateProfit.toLocaleString() }} ฿</p></div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500"><h3 class="text-gray-500 text-sm font-medium">ยอดขายทั้งเดือน</h3><p class="text-2xl font-bold text-purple-600 mt-1">{{ selectedMonthTotal.toLocaleString() }} ฿</p></div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500"><h3 class="text-gray-500 text-sm font-medium">กำไรทั้งเดือน</h3><p class="text-2xl font-bold text-indigo-600 mt-1">{{ selectedMonthProfit.toLocaleString() }} ฿</p></div>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm">
@@ -147,7 +143,7 @@
             </div>
         </div>
 
-        <!-- ================= ประวัติการขาย (ระบบค้นหาลูกค้า) ================= -->
+        <!-- ================= ประวัติการขาย ================= -->
         <div v-show="currentTab === 'history'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
                 <div>
@@ -163,12 +159,7 @@
                 <table class="w-full text-left border-collapse min-w-[850px]">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600">
-                            <th class="p-3 w-32">เวลา</th>
-                            <th class="p-3 w-28">เลขที่บิล</th>
-                            <th class="p-3 w-40">ลูกค้า</th>
-                            <th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th>
-                            <th class="p-3 text-right w-28">ยอดรวม (฿)</th>
-                            <th class="p-3 text-center w-48">จัดการ</th>
+                            <th class="p-3 w-32">เวลา</th><th class="p-3 w-28">เลขที่บิล</th><th class="p-3 w-40">ลูกค้า</th><th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th><th class="p-3 text-right w-28">ยอดรวม (฿)</th><th class="p-3 text-center w-48">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -176,9 +167,7 @@
                             <td class="p-3 text-xs text-gray-500">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
                             <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
                             <td class="p-3 font-medium text-teal-700">{{ b.customerName || 'ทั่วไป' }}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">
-                                {{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}
-                            </td>
+                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">{{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}</td>
                             <td class="p-3 text-right font-medium text-gray-800">{{ b.total.toLocaleString() }}</td>
                             <td class="p-3 text-center flex justify-center gap-1">
                                 <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
@@ -186,24 +175,20 @@
                                 <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
                             </td>
                         </tr>
-                        <tr v-if="filteredHistoryBills.length === 0">
-                            <td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td>
-                        </tr>
+                        <tr v-if="filteredHistoryBills.length === 0"><td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ================= คลังสินค้า (อัปเดต UI พิมพ์สต็อกได้ & ปุ่มแก้ไขด่วน) ================= -->
+        <!-- ================= คลังสินค้า ================= -->
         <div v-show="currentTab === 'products'" class="no-print space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                
                 <!-- แผงซ้าย: อัปเดตด่วน -->
                 <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200 flex flex-col justify-between relative" id="quickEditPanel">
                     <div>
                         <h3 class="font-bold text-blue-800 text-lg mb-4 flex items-center gap-2">⚡ แผงแก้ไขสินค้าด่วน</h3>
                         <div class="space-y-4">
-                            <!-- เลือกสินค้าเพื่อแก้ไข -->
                             <div class="flex flex-col md:flex-row gap-3">
                                 <select v-model="quickEdit.category" @change="syncCategoryFilter" class="flex-1 border border-blue-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white font-medium text-blue-800 shadow-sm text-sm">
                                     <option value="">-- 1. เลือกหมวดหมู่ --</option>
@@ -214,54 +199,26 @@
                                     <option v-for="p in products.filter(x => (x.category || 'ทั่วไป') === quickEdit.category)" :value="p.id">{{ p.name }}</option>
                                 </select>
                             </div>
-                            
-                            <!-- ฟอร์มแก้ไข -->
                             <div v-if="quickEdit.productId" class="bg-white p-4 rounded-xl shadow-sm border border-blue-300 mt-2 space-y-4">
                                 <div class="flex flex-col md:flex-row gap-3">
-                                    <div class="md:w-1/3">
-                                        <label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนหมวดหมู่</label>
-                                        <input v-model="quickEdit.newCategory" list="edit-category-list" type="text" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
-                                        <datalist id="edit-category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist>
-                                    </div>
-                                    <div class="md:w-2/3">
-                                        <label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนชื่อสินค้า</label>
-                                        <input v-model="quickEdit.newName" type="text" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-medium bg-gray-50">
-                                    </div>
+                                    <div class="md:w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนหมวดหมู่</label><input v-model="quickEdit.newCategory" list="edit-category-list" type="text" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50"><datalist id="edit-category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist></div>
+                                    <div class="md:w-2/3"><label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนชื่อสินค้า</label><input v-model="quickEdit.newName" type="text" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-medium bg-gray-50"></div>
                                 </div>
-                                
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                    <div class="col-span-2 md:col-span-1">
-                                        <label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label>
-                                        <input v-model="quickEdit.barcode" type="text" placeholder="บาร์โค้ด" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono bg-gray-50">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs text-orange-600 font-bold mb-1 block">แก้ทุน (฿)</label>
-                                        <input v-model.number="quickEdit.cost" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs text-green-600 font-bold mb-1 block">แก้ราคา (฿)</label>
-                                        <input v-model.number="quickEdit.price" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-green-400 bg-green-50">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label>
-                                        <input v-model.number="quickEdit.stock" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50">
-                                    </div>
+                                    <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label><input v-model="quickEdit.barcode" type="text" placeholder="บาร์โค้ด" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono bg-gray-50"></div>
+                                    <div><label class="text-xs text-orange-600 font-bold mb-1 block">แก้ทุน (฿)</label><input v-model.number="quickEdit.cost" type="number" placeholder="0" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50"></div>
+                                    <div><label class="text-xs text-green-600 font-bold mb-1 block">แก้ราคา (฿)</label><input v-model.number="quickEdit.price" type="number" placeholder="0" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-400 bg-green-50"></div>
+                                    <div><label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label><input v-model.number="quickEdit.stock" type="number" placeholder="0" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50"></div>
                                 </div>
-                                
-                                <!-- ระบบราคาส่ง (Edit) -->
                                 <div class="grid grid-cols-2 gap-3 border-t border-blue-100 pt-3">
                                     <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
                                     <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/ชิ้น)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                                 </div>
                             </div>
-                            <div v-else class="text-center py-10 text-gray-400 text-sm border-2 border-dashed border-blue-200 rounded-xl bg-white/50">
-                                เลือกสินค้าด้านบน หรือคลิกปุ่ม "✏️ แก้ไข" ที่ตารางด้านล่าง
-                            </div>
+                            <div v-else class="text-center py-10 text-gray-400 text-sm border-2 border-dashed border-blue-200 rounded-xl bg-white/50">เลือกสินค้าด้านบน หรือคลิกปุ่ม "✏️ แก้ไข" ที่ตารางด้านล่าง</div>
                         </div>
                     </div>
-                    <button v-if="quickEdit.productId" @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md mt-5 text-lg">
-                        💾 บันทึกการแก้ไข
-                    </button>
+                    <button v-if="quickEdit.productId" @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md mt-5 text-lg">💾 บันทึกการแก้ไข</button>
                 </div>
 
                 <!-- แผงขวา: เพิ่มสินค้าใหม่ -->
@@ -270,46 +227,22 @@
                         <h3 class="font-bold text-gray-700 text-lg mb-4">➕ เพิ่มสินค้าใหม่เข้าคลัง</h3>
                         <div class="space-y-4">
                             <div class="flex flex-col md:flex-row gap-3">
-                                <div class="md:w-1/3">
-                                    <label class="text-xs text-gray-500 font-bold mb-1 block">หมวดหมู่</label>
-                                    <input v-model="newProduct.category" list="category-list" type="text" placeholder="เลือกหรือพิมพ์ใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm">
-                                    <datalist id="category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist>
-                                </div>
-                                <div class="md:w-2/3">
-                                    <label class="text-xs text-gray-500 font-bold mb-1 block">ชื่อสินค้า</label>
-                                    <input v-model="newProduct.name" type="text" placeholder="ชื่อสินค้าใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-medium">
-                                </div>
+                                <div class="md:w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">หมวดหมู่</label><input v-model="newProduct.category" list="category-list" type="text" placeholder="เลือกหรือพิมพ์ใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm"><datalist id="category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist></div>
+                                <div class="md:w-2/3"><label class="text-xs text-gray-500 font-bold mb-1 block">ชื่อสินค้า</label><input v-model="newProduct.name" type="text" placeholder="ชื่อสินค้าใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-medium"></div>
                             </div>
-                            
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div class="col-span-2 md:col-span-1">
-                                    <label class="text-xs text-gray-500 font-bold mb-1 block">รหัสบาร์โค้ด</label>
-                                    <input v-model="newProduct.barcode" type="text" placeholder="สแกนหรือพิมพ์" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 font-mono text-sm">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-orange-600 font-bold mb-1 block">ต้นทุน (฿)</label>
-                                    <input v-model.number="newProduct.cost" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50 text-sm">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-green-600 font-bold mb-1 block">ราคาขาย (฿)</label>
-                                    <input v-model.number="newProduct.price" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-green-400 bg-green-50 text-sm font-bold">
-                                </div>
-                                <div>
-                                    <label class="text-xs text-blue-700 font-bold mb-1 block">สต็อกเริ่มต้น</label>
-                                    <input v-model.number="newProduct.stock" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-bold text-blue-700">
-                                </div>
+                                <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">รหัสบาร์โค้ด</label><input v-model="newProduct.barcode" type="text" placeholder="สแกนหรือพิมพ์" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 font-mono text-sm"></div>
+                                <div><label class="text-xs text-orange-600 font-bold mb-1 block">ต้นทุน (฿)</label><input v-model.number="newProduct.cost" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50 text-sm"></div>
+                                <div><label class="text-xs text-green-600 font-bold mb-1 block">ราคาขาย (฿)</label><input v-model.number="newProduct.price" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-green-400 bg-green-50 text-sm font-bold"></div>
+                                <div><label class="text-xs text-blue-700 font-bold mb-1 block">สต็อกเริ่มต้น</label><input v-model.number="newProduct.stock" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-bold text-blue-700"></div>
                             </div>
-
-                            <!-- ระบบราคาส่ง (Add) -->
                             <div class="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
                                 <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
                                 <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/ชิ้น)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                             </div>
                         </div>
                     </div>
-                    <button @click="addProduct" class="w-full bg-teal-500 text-white py-3 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm mt-5">
-                        + บันทึกสินค้าใหม่
-                    </button>
+                    <button @click="addProduct" class="w-full bg-teal-500 text-white py-3 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm mt-5">+ บันทึกสินค้าใหม่</button>
                 </div>
             </div>
 
@@ -327,14 +260,7 @@
                 <table class="w-full text-left border-collapse min-w-[900px] border border-gray-100 rounded-lg">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 whitespace-nowrap">
-                            <th class="p-3">หมวดหมู่</th>
-                            <th class="p-3">บาร์โค้ด</th>
-                            <th class="p-3">ชื่อสินค้า</th>
-                            <th class="p-3 text-right">ต้นทุน</th>
-                            <th class="p-3 text-right">ราคาปลีก</th>
-                            <th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th>
-                            <th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขได้)</th>
-                            <th class="p-3 text-center w-32">จัดการ</th>
+                            <th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า</th><th class="p-3 text-right">ต้นทุน</th><th class="p-3 text-right">ราคาปลีก</th><th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th><th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขได้)</th><th class="p-3 text-center w-32">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -348,7 +274,6 @@
                                 <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ (ทุกๆ {{ prod.wholesaleQty }}ชิ้น)</span>
                                 <span v-else class="text-gray-300">-</span>
                             </td>
-                            <!-- ส่วนแก้ไขสต็อก (คลิกพิมพ์ได้เลย) -->
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-1">
                                     <button @click="quickAdjustStock(prod.id, -1)" class="w-8 h-8 bg-red-100 text-red-600 rounded-full font-bold hover:bg-red-200 transition shadow-sm">-</button>
@@ -356,7 +281,6 @@
                                     <button @click="quickAdjustStock(prod.id, 1)" class="w-8 h-8 bg-green-100 text-green-600 rounded-full font-bold hover:bg-green-200 transition shadow-sm">+</button>
                                 </div>
                             </td>
-                            <!-- ปุ่มจัดการ -->
                             <td class="p-3 text-center flex justify-center gap-1">
                                 <button @click="editProductFromTable(prod)" class="text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-3 py-1 rounded shadow-sm transition">✏️</button>
                                 <button @click="deleteProduct(prod.id)" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-1 rounded shadow-sm transition">🗑️</button>
@@ -394,7 +318,6 @@
         <!-- ================= สร้างบิล (POS) ================= -->
         <div v-show="currentTab === 'create'">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- แผงซ้าย: เลือกสินค้า -->
                 <div class="no-print lg:col-span-5 space-y-4">
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm">
@@ -402,9 +325,7 @@
                             1. ข้อมูลลูกค้า <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded">{{ shop.paperSize === 'slip' ? '🧾 สลิป 57mm' : '📄 A4' }}</span>
                         </h3>
                         <div class="space-y-3">
-                            <select v-model="bill.type" class="w-full border rounded-lg p-3 bg-gray-50">
-                                <option value="ใบเสร็จรับเงิน">🧾 ใบเสร็จรับเงิน</option><option value="ใบส่งของ">📦 ใบส่งของ</option>
-                            </select>
+                            <select v-model="bill.type" class="w-full border rounded-lg p-3 bg-gray-50"><option value="ใบเสร็จรับเงิน">🧾 ใบเสร็จรับเงิน</option><option value="ใบส่งของ">📦 ใบส่งของ</option></select>
                             <input v-model="bill.customerName" type="text" placeholder="ชื่อลูกค้า" class="w-full border rounded-lg p-3 bg-gray-50">
                         </div>
                     </div>
@@ -414,9 +335,7 @@
                         <div class="bg-teal-600 p-3 rounded-lg shadow-inner mb-3">
                             <input ref="barcodeInput" v-model="scannedBarcode" @keyup.enter="handleBarcodeScan" type="text" placeholder="📷 สแกนบาร์โค้ดที่นี่..." class="w-full border-0 rounded p-2 outline-none focus:ring-2 focus:ring-teal-300 font-mono text-center shadow">
                         </div>
-                        <div class="mb-3">
-                            <input v-model="searchQuery" type="text" placeholder="🔍 พิมพ์ชื่อสินค้าเพื่อค้นหา..." class="w-full border rounded-lg p-2 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
-                        </div>
+                        <div class="mb-3"><input v-model="searchQuery" type="text" placeholder="🔍 พิมพ์ชื่อสินค้าเพื่อค้นหา..." class="w-full border rounded-lg p-2 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"></div>
                         <div class="flex gap-2 overflow-x-auto mb-3 pb-2 hide-scroll" v-if="uniqueCategoriesList.length > 0">
                             <button @click="selectedCategory = 'ทั้งหมด'" :class="selectedCategory === 'ทั้งหมด' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">ทั้งหมด</button>
                             <button v-for="cat in uniqueCategoriesList" :key="cat" @click="selectedCategory = cat" :class="selectedCategory === cat ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">{{ cat }}</button>
@@ -427,10 +346,7 @@
                                 <span class="font-medium text-gray-700 text-sm leading-tight mt-1">{{ prod.name }}</span>
                                 <div class="flex flex-col items-center mt-1">
                                     <span class="text-teal-600 text-xs font-bold">{{ prod.price.toLocaleString() }} ฿</span>
-                                    <!-- แจ้งเตือนโปรโมชั่นให้แคชเชียร์เห็นในกล่อง -->
-                                    <span v-if="prod.wholesaleQty > 0" class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded mt-1 border border-purple-100 text-center w-full">
-                                        ทุกๆ {{ prod.wholesaleQty }}ชิ้น<br>เหลือชิ้นละ {{ prod.wholesalePrice }}฿
-                                    </span>
+                                    <span v-if="prod.wholesaleQty > 0" class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded mt-1 border border-purple-100 text-center w-full">ทุกๆ {{ prod.wholesaleQty }}ชิ้น<br>เหลือชิ้นละ {{ prod.wholesalePrice }}฿</span>
                                 </div>
                             </div>
                         </div>
@@ -468,9 +384,7 @@
                         </div>
                     </div>
 
-                    <button @click="saveAndPrintBill" class="w-full bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">
-                        🖨️ บันทึกยอดขาย & สั่งพิมพ์
-                    </button>
+                    <button @click="saveAndPrintBill" class="w-full bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">🖨️ บันทึกยอดขาย & สั่งพิมพ์</button>
                 </div>
 
                 <!-- แผงขวา: พรีวิวใบเสร็จ -->
@@ -491,7 +405,6 @@
                                         <span v-if="!item.id" class="text-[10px] text-orange-500 ml-2 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
                                         <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(จัดเซ็ต {{ item.wholesaleQty }} ชิ้น)</span>
                                     </td>
-                                    
                                     <td class="py-3 text-center no-print">
                                         <div class="flex items-center justify-center gap-1">
                                             <button @click="decreaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">-</button>
@@ -499,20 +412,15 @@
                                             <button @click="increaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">+</button>
                                         </div>
                                     </td>
-                                    
                                     <td class="py-3 text-center print:table-cell hidden">{{ item.qty }}</td>
-                                    
                                     <td class="py-3 text-right">
+                                        <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-xs text-gray-400 line-through mr-1 no-print">{{ item.originalPrice }}</span>
                                         {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString() }}
-                                        <!-- โชว์โน้ตการคิดราคาแบบจัดเซ็ตในบิลให้ลูกค้าดู -->
                                         <div v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 font-bold mt-1">
                                             (ลดเซ็ตละ {{ (item.originalPrice * item.wholesaleQty) - (item.wholesalePrice * item.wholesaleQty) }}฿)
                                         </div>
                                     </td>
-                                    
-                                    <td class="py-3 text-right font-medium text-teal-700">
-                                        {{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}
-                                    </td>
+                                    <td class="py-3 text-right font-medium text-teal-700">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
                                     <td class="py-3 text-center no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold text-sm">ลบ</button></td>
                                 </tr>
                             </tbody>
@@ -540,7 +448,7 @@
                                         <span v-if="!item.id" class="text-[10px] text-orange-500 ml-1 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
                                         <div class="text-xs text-gray-500">
                                             @{{ item.originalPrice !== undefined ? item.originalPrice : item.price }}
-                                            <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600">
+                                            <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-1 block">
                                                 (เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})
                                             </span>
                                         </div>
@@ -588,10 +496,7 @@
         <!-- ================= พิมพ์บิลย้อนหลัง ================= -->
         <div v-if="printTarget === 'history' && viewingBill" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
             <div class="text-center mb-3"><h2 :class="shop.paperSize === 'slip' ? 'text-xl' : 'text-3xl'" class="font-bold">{{ shop.name }}</h2></div>
-            <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3">
-                <h1 :class="shop.paperSize === 'slip' ? 'text-lg' : 'text-2xl'" class="font-bold">{{ viewingBill.type }} <span class="text-xs">(พิมพ์ซ้ำ)</span></h1>
-                <p class="text-sm mt-1">วันที่: {{ new Date(viewingBill.timestamp).toLocaleDateString('th-TH') }}</p><p class="text-sm">เลขที่: INV-{{ viewingBill.billNumber }}</p>
-            </div>
+            <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3"><h1 :class="shop.paperSize === 'slip' ? 'text-lg' : 'text-2xl'" class="font-bold">{{ viewingBill.type }} <span class="text-xs">(พิมพ์ซ้ำ)</span></h1><p class="text-sm mt-1">วันที่: {{ new Date(viewingBill.timestamp).toLocaleDateString('th-TH') }}</p><p class="text-sm">เลขที่: INV-{{ viewingBill.billNumber }}</p></div>
             <div class="mb-3 text-sm" v-if="viewingBill.customerName"><p>ลูกค้า: {{ viewingBill.customerName }}</p></div>
             <table class="w-full text-sm mb-3">
                 <thead><tr class="border-b border-gray-400"><th class="py-1 text-left">รายการ</th><th class="py-1 text-center w-10">จน.</th><th class="py-1 text-right w-16">รวม</th></tr></thead>
@@ -601,12 +506,10 @@
                             {{ item.name }}
                             <div class="text-[10px] text-gray-500" v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0">(เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})</div>
                         </td>
-                        <td class="py-2 text-center">{{ item.qty }}</td>
-                        <td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
+                        <td class="py-2 text-center">{{ item.qty }}</td><td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
                     </tr>
                 </tbody>
             </table>
-            
             <div class="text-right font-bold text-lg mt-2 border-t border-dashed border-gray-400 pt-2">รวมสุทธิ: {{ viewingBill.total.toLocaleString() }} ฿</div>
             <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString() }} ฿</div>
             <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString() }} ฿</div>
@@ -616,9 +519,9 @@
 
     <!-- Script ควบคุม -->
     <script type="module">
-        import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { createApp, ref, onMounted, onUnmounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, addDoc, updateDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc, addDoc, updateDoc, enableIndexedDbPersistence } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyDTH0ZDSIhDPqZyWDF1wtlUEcA-ik0jWI4",
@@ -631,6 +534,16 @@
 
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
+        
+        // --- เปิดระบบ Offline Persistence ---
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.warn('Persistance failed: Multiple tabs open');
+            } else if (err.code == 'unimplemented') {
+                console.warn('Persistance failed: Browser not supported');
+            }
+        });
+
         const urlParams = new URLSearchParams(window.location.search);
         const isStandalone = urlParams.get('view') === 'dashboard';
 
@@ -642,6 +555,7 @@
                 const d = String(today.getDate()).padStart(2, '0');
                 
                 return {
+                    isOnline: navigator.onLine, // ตรวจสอบสถานะเน็ต
                     currentTab: isStandalone ? 'dashboard' : 'create',
                     isStandaloneDashboard: isStandalone,
                     
@@ -658,11 +572,8 @@
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
                     selectedDate: `${y}-${m}-${d}`, 
-                    selectedCategory: 'ทั้งหมด', 
-                    chartCategory: 'ทั้งหมด',
-                    searchQuery: '', 
-                    scannedBarcode: '', 
-                    manualItem: { name: '', price: '', qty: 1 },
+                    selectedCategory: 'ทั้งหมด', chartCategory: 'ทั้งหมด',
+                    searchQuery: '', scannedBarcode: '', manualItem: { name: '', price: '', qty: 1 },
                     historySearch: '',
                     
                     printTarget: 'create', viewingBill: null, chartInstance: null
@@ -670,11 +581,7 @@
             },
             computed: {
                 currentDate() { return new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }); },
-                
-                // แก้ไขการคำนวณ totalAmount โดยใช้ lineTotal ที่คำนวณมาแล้ว
-                totalAmount() { 
-                    return this.bill.items.reduce((sum, item) => sum + (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty), 0); 
-                },
+                totalAmount() { return this.bill.items.reduce((sum, item) => sum + (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty), 0); },
                 
                 formattedSelectedDate() {
                     if(!this.selectedDate) return '';
@@ -751,6 +658,10 @@
                 chartCategory() { if (this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); }
             },
             mounted() {
+                // ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
+                window.addEventListener('online', () => this.isOnline = true);
+                window.addEventListener('offline', () => this.isOnline = false);
+
                 onSnapshot(doc(db, "settings", "shopInfo"), (docSnap) => { 
                     if (docSnap.exists()) { this.shop = docSnap.data(); if(!this.shop.paperSize) this.shop.paperSize = 'a4'; } 
                 });
@@ -792,7 +703,6 @@
                     }, 50);
                 },
 
-                // ฟังก์ชันหลักที่ใช้คำนวณราคาสุทธิของสินค้าแบบจัดเซ็ต
                 updateItemPrice(item) {
                     if (item.wholesaleQty > 0) {
                         const bundles = Math.floor(item.qty / item.wholesaleQty);
@@ -971,7 +881,7 @@
                         const newItem = { 
                             id: prod.id, 
                             name: prod.name, 
-                            originalPrice: prod.price, // เก็บราคาปกติต่อชิ้นไว้แสดงผล
+                            originalPrice: prod.price,
                             price: prod.price, 
                             cost: prod.cost || 0, 
                             wholesaleQty: prod.wholesaleQty || 0,
@@ -1032,6 +942,7 @@
                     }
                     const billProfit = this.totalAmount - totalCost;
 
+                    // บันทึกบิลลง Firebase (ทำงานได้แม้ออฟไลน์)
                     await addDoc(collection(db, "bills"), {
                         customerName: this.bill.customerName, 
                         type: this.bill.type, 
@@ -1045,6 +956,7 @@
                         timestamp: new Date().toISOString()
                     });
 
+                    // หักสต็อก
                     for (const item of this.bill.items) {
                         if (item.id) {
                             const prodDb = this.products.find(p => p.id === item.id);
