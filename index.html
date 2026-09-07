@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EasyBill - ระบบออกใบเสร็จและแดชบอร์ด</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js สำหรับทำกราฟ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
@@ -34,6 +36,7 @@
 <body class="bg-gray-100 min-h-screen text-gray-800">
     <div id="app" class="max-w-6xl mx-auto p-4 md:p-6">
         
+        <!-- เมนูหลัก -->
         <div v-if="!isStandaloneDashboard" class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
             <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"><span v-if="isOnline">☁️ Online</span><span v-else class="text-orange-700 bg-orange-100">⚡ Offline</span></span></h1>
             
@@ -45,6 +48,7 @@
             <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
         </div>
 
+        <!-- แบนเนอร์หัวจอ (โหมดแยกหน้าต่าง) -->
         <div v-if="isStandaloneDashboard" class="no-print bg-gray-800 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center">
             <div class="flex items-center gap-3"><span class="text-2xl">📊</span><div><h1 class="font-bold text-lg leading-tight">{{ shop.name || 'EasyBill' }} - Live Dashboard</h1><p class="text-xs text-gray-300">อัปเดตข้อมูล Real-time</p></div></div>
             <div class="text-right">
@@ -159,15 +163,25 @@
                 <table class="w-full text-left border-collapse min-w-[850px]">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600">
-                            <th class="p-3 w-32">เวลา</th><th class="p-3 w-28">เลขที่บิล</th><th class="p-3 w-40">ลูกค้า</th><th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th><th class="p-3 text-right w-28">ยอดรวม (฿)</th><th class="p-3 text-center w-48">จัดการ</th>
+                            <th class="p-3 w-32">เวลา</th>
+                            <th class="p-3 w-28">เลขที่บิล</th>
+                            <th class="p-3 w-40">ลูกค้า</th>
+                            <th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th>
+                            <th class="p-3 text-right w-28">ยอดรวม (฿)</th>
+                            <th class="p-3 text-center w-48">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="b in filteredHistoryBills" :key="b.id" class="border-b hover:bg-gray-50">
                             <td class="p-3 text-xs text-gray-500">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
                             <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
-                            <td class="p-3 font-medium text-teal-700">{{ b.customerName || 'ทั่วไป' }}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">{{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}</td>
+                            <td class="p-3 font-medium text-teal-700">
+                                {{ b.customerName || 'ทั่วไป' }}
+                                <div v-if="b.discountAmount > 0" class="text-[10px] text-red-500 mt-1 bg-red-50 inline-block px-1 rounded border border-red-100">มีส่วนลด {{ b.discountAmount }}฿</div>
+                            </td>
+                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">
+                                {{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}
+                            </td>
                             <td class="p-3 text-right font-medium text-gray-800">{{ b.total.toLocaleString() }}</td>
                             <td class="p-3 text-center flex justify-center gap-1">
                                 <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
@@ -175,7 +189,9 @@
                                 <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
                             </td>
                         </tr>
-                        <tr v-if="filteredHistoryBills.length === 0"><td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td></tr>
+                        <tr v-if="filteredHistoryBills.length === 0">
+                            <td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -318,6 +334,7 @@
         <!-- ================= สร้างบิล (POS) ================= -->
         <div v-show="currentTab === 'create'">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- แผงซ้าย: เลือกสินค้า -->
                 <div class="no-print lg:col-span-5 space-y-4">
                     
                     <div class="bg-white p-5 rounded-xl shadow-sm">
@@ -364,14 +381,40 @@
                         </div>
                     </div>
 
+                    <!-- 🔴 ส่วนลด (เพิ่มใหม่) -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm">
+                        <h3 class="font-semibold text-gray-700 mb-2">4. ส่วนลดท้ายบิล (ถ้ามี)</h3>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <div class="md:w-1/3">
+                                <label class="text-xs text-gray-500 font-bold mb-1 block">ส่วนลดรวม (฿)</label>
+                                <input v-model.number="bill.discountAmount" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-red-400 bg-red-50 text-red-600 font-bold">
+                            </div>
+                            <div class="md:w-2/3">
+                                <label class="text-xs text-gray-500 font-bold mb-1 block">หมายเหตุส่วนลด</label>
+                                <input v-model="bill.discountNote" type="text" placeholder="เช่น ลูกค้าเก่า, โปรโมชั่น..." class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-red-400 bg-gray-50 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-400">
-                        <h3 class="font-semibold text-gray-700 mb-3">4. คำนวณเงินรับ / เงินทอน</h3>
+                        <h3 class="font-semibold text-gray-700 mb-3">5. คำนวณเงินรับ / เงินทอน</h3>
                         <div class="flex flex-col gap-3">
-                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
-                                <span class="text-sm font-medium text-gray-600">ยอดรวมที่ต้องชำระ:</span>
+                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border">
+                                <span class="text-sm font-medium text-gray-600">รวมเป็นเงิน:</span>
+                                <span class="text-lg font-bold text-gray-600">{{ subTotalAmount.toLocaleString() }} ฿</span>
+                            </div>
+                            
+                            <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100" v-if="bill.discountAmount > 0">
+                                <span class="text-sm font-medium text-red-600">หักส่วนลด:</span>
+                                <span class="text-lg font-bold text-red-600">-{{ bill.discountAmount.toLocaleString() }} ฿</span>
+                            </div>
+
+                            <div class="flex justify-between items-center bg-teal-50 p-3 rounded-lg border border-teal-200">
+                                <span class="text-sm font-bold text-teal-800">ยอดรวมสุทธิ:</span>
                                 <span class="text-xl font-bold text-teal-600">{{ totalAmount.toLocaleString() }} ฿</span>
                             </div>
-                            <div class="flex items-center gap-2">
+
+                            <div class="flex items-center gap-2 mt-2">
                                 <label class="text-sm font-medium text-gray-700 w-20">รับเงินมา:</label>
                                 <input v-model.number="bill.receivedAmount" type="number" placeholder="ระบุจำนวนเงิน (฿)" class="flex-1 border rounded-lg p-3 text-lg font-bold text-right focus:outline-none focus:ring-2 focus:ring-green-400 bg-green-50">
                             </div>
@@ -384,7 +427,9 @@
                         </div>
                     </div>
 
-                    <button @click="saveAndPrintBill" class="w-full bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">🖨️ บันทึกยอดขาย & สั่งพิมพ์</button>
+                    <button @click="saveAndPrintBill" class="w-full bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">
+                        🖨️ บันทึกยอดขาย & สั่งพิมพ์
+                    </button>
                 </div>
 
                 <!-- แผงขวา: พรีวิวใบเสร็จ -->
@@ -427,6 +472,14 @@
                         </table>
                         <div class="flex justify-end mb-8">
                             <div class="w-80 bg-teal-50 p-5 rounded-xl border border-teal-100">
+                                <div class="flex justify-between font-medium text-lg text-gray-600 mb-1" v-if="bill.discountAmount > 0">
+                                    <span>รวมเป็นเงิน:</span><span>{{ subTotalAmount.toLocaleString() }} ฿</span>
+                                </div>
+                                <div class="flex justify-between font-medium text-lg text-red-500 mb-2 pb-2 border-b border-red-200" v-if="bill.discountAmount > 0">
+                                    <div>ส่วนลด: <span class="text-xs text-gray-500 block" v-if="bill.discountNote">({{ bill.discountNote }})</span></div>
+                                    <span>-{{ bill.discountAmount.toLocaleString() }} ฿</span>
+                                </div>
+
                                 <div class="flex justify-between font-bold text-xl text-gray-700 mb-2"><span>ยอดรวมสุทธิ:</span><span>{{ totalAmount.toLocaleString() }} ฿</span></div>
                                 <div v-if="bill.receivedAmount > 0" class="flex justify-between text-gray-600 mb-2 font-medium"><span>รับเงินมา:</span><span>{{ bill.receivedAmount.toLocaleString() }} ฿</span></div>
                                 <div v-if="bill.receivedAmount > 0" class="flex justify-between font-bold text-2xl text-green-700 pt-2 border-t border-teal-200"><span>เงินทอน:</span><span>{{ (bill.receivedAmount - totalAmount).toLocaleString() }} ฿</span></div>
@@ -466,7 +519,15 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="text-right font-bold text-lg mt-2 border-t border-dashed border-gray-400 pt-2">รวมสุทธิ: {{ totalAmount.toLocaleString() }} ฿</div>
+                        
+                        <!-- แสดงส่วนลดบนสลิป -->
+                        <div class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2" v-if="bill.discountAmount > 0">รวมเป็นเงิน: {{ subTotalAmount.toLocaleString() }} ฿</div>
+                        <div class="text-right text-sm text-red-600" v-if="bill.discountAmount > 0">
+                            ส่วนลด: -{{ bill.discountAmount.toLocaleString() }} ฿
+                            <div class="text-[10px] text-gray-500" v-if="bill.discountNote">({{ bill.discountNote }})</div>
+                        </div>
+
+                        <div class="text-right font-bold text-lg" :class="bill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ totalAmount.toLocaleString() }} ฿</div>
                         <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString() }} ฿</div>
                         <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString() }} ฿</div>
                         <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
@@ -496,7 +557,10 @@
         <!-- ================= พิมพ์บิลย้อนหลัง ================= -->
         <div v-if="printTarget === 'history' && viewingBill" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
             <div class="text-center mb-3"><h2 :class="shop.paperSize === 'slip' ? 'text-xl' : 'text-3xl'" class="font-bold">{{ shop.name }}</h2></div>
-            <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3"><h1 :class="shop.paperSize === 'slip' ? 'text-lg' : 'text-2xl'" class="font-bold">{{ viewingBill.type }} <span class="text-xs">(พิมพ์ซ้ำ)</span></h1><p class="text-sm mt-1">วันที่: {{ new Date(viewingBill.timestamp).toLocaleDateString('th-TH') }}</p><p class="text-sm">เลขที่: INV-{{ viewingBill.billNumber }}</p></div>
+            <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3">
+                <h1 :class="shop.paperSize === 'slip' ? 'text-lg' : 'text-2xl'" class="font-bold">{{ viewingBill.type }} <span class="text-xs">(พิมพ์ซ้ำ)</span></h1>
+                <p class="text-sm mt-1">วันที่: {{ new Date(viewingBill.timestamp).toLocaleDateString('th-TH') }}</p><p class="text-sm">เลขที่: INV-{{ viewingBill.billNumber }}</p>
+            </div>
             <div class="mb-3 text-sm" v-if="viewingBill.customerName"><p>ลูกค้า: {{ viewingBill.customerName }}</p></div>
             <table class="w-full text-sm mb-3">
                 <thead><tr class="border-b border-gray-400"><th class="py-1 text-left">รายการ</th><th class="py-1 text-center w-10">จน.</th><th class="py-1 text-right w-16">รวม</th></tr></thead>
@@ -510,7 +574,15 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="text-right font-bold text-lg mt-2 border-t border-dashed border-gray-400 pt-2">รวมสุทธิ: {{ viewingBill.total.toLocaleString() }} ฿</div>
+            
+            <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2">รวมเป็นเงิน: {{ (viewingBill.subTotal || (viewingBill.total + viewingBill.discountAmount)).toLocaleString() }} ฿</div>
+            <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm text-red-600">
+                ส่วนลด: -{{ viewingBill.discountAmount.toLocaleString() }} ฿
+                <div class="text-[10px] text-gray-500" v-if="viewingBill.discountNote">({{ viewingBill.discountNote }})</div>
+            </div>
+
+            <div class="text-right font-bold text-lg" :class="viewingBill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ viewingBill.total.toLocaleString() }} ฿</div>
+            
             <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString() }} ฿</div>
             <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString() }} ฿</div>
             <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
@@ -535,7 +607,6 @@
         const firebaseApp = initializeApp(firebaseConfig);
         const db = getFirestore(firebaseApp);
         
-        // --- เปิดระบบ Offline Persistence ---
         enableIndexedDbPersistence(db).catch((err) => {
             if (err.code == 'failed-precondition') {
                 console.warn('Persistance failed: Multiple tabs open');
@@ -555,7 +626,7 @@
                 const d = String(today.getDate()).padStart(2, '0');
                 
                 return {
-                    isOnline: navigator.onLine, // ตรวจสอบสถานะเน็ต
+                    isOnline: navigator.onLine,
                     currentTab: isStandalone ? 'dashboard' : 'create',
                     isStandaloneDashboard: isStandalone,
                     
@@ -568,12 +639,16 @@
                     quickEdit: { category: '', productId: '', newCategory: '', newName: '', barcode: '', cost: '', price: '', stock: '', wholesaleQty: '', wholesalePrice: '' },
                     inventoryCategory: 'ทั้งหมด',
                     
-                    bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null },
+                    // เพิ่ม discountAmount และ discountNote ในบิล
+                    bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null, discountAmount: 0, discountNote: '' },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
                     
                     selectedDate: `${y}-${m}-${d}`, 
-                    selectedCategory: 'ทั้งหมด', chartCategory: 'ทั้งหมด',
-                    searchQuery: '', scannedBarcode: '', manualItem: { name: '', price: '', qty: 1 },
+                    selectedCategory: 'ทั้งหมด', 
+                    chartCategory: 'ทั้งหมด',
+                    searchQuery: '', 
+                    scannedBarcode: '', 
+                    manualItem: { name: '', price: '', qty: 1 },
                     historySearch: '',
                     
                     printTarget: 'create', viewingBill: null, chartInstance: null
@@ -581,7 +656,15 @@
             },
             computed: {
                 currentDate() { return new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }); },
-                totalAmount() { return this.bill.items.reduce((sum, item) => sum + (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty), 0); },
+                
+                // คำนวณยอดรวม (ก่อนหักส่วนลด)
+                subTotalAmount() { 
+                    return this.bill.items.reduce((sum, item) => sum + (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty), 0); 
+                },
+                // คำนวณยอดรวมสุทธิ (หลังหักส่วนลด)
+                totalAmount() { 
+                    return Math.max(0, this.subTotalAmount - (this.bill.discountAmount || 0)); 
+                },
                 
                 formattedSelectedDate() {
                     if(!this.selectedDate) return '';
@@ -658,7 +741,6 @@
                 chartCategory() { if (this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); }
             },
             mounted() {
-                // ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
                 window.addEventListener('online', () => this.isOnline = true);
                 window.addEventListener('offline', () => this.isOnline = false);
 
@@ -940,13 +1022,16 @@
                     for (const item of this.bill.items) {
                         totalCost += (item.cost || 0) * item.qty;
                     }
+                    // กำไร = ยอดรวมสุทธิ - ต้นทุน
                     const billProfit = this.totalAmount - totalCost;
 
-                    // บันทึกบิลลง Firebase (ทำงานได้แม้ออฟไลน์)
                     await addDoc(collection(db, "bills"), {
                         customerName: this.bill.customerName, 
                         type: this.bill.type, 
                         billNumber: this.billNumber,
+                        subTotal: this.subTotalAmount,
+                        discountAmount: this.bill.discountAmount || 0,
+                        discountNote: this.bill.discountNote || '',
                         total: this.totalAmount, 
                         totalCost: totalCost,
                         profit: billProfit,
@@ -956,7 +1041,6 @@
                         timestamp: new Date().toISOString()
                     });
 
-                    // หักสต็อก
                     for (const item of this.bill.items) {
                         if (item.id) {
                             const prodDb = this.products.find(p => p.id === item.id);
@@ -972,6 +1056,8 @@
                         this.bill.items = []; 
                         this.bill.customerName = ''; 
                         this.bill.receivedAmount = null; 
+                        this.bill.discountAmount = 0;
+                        this.bill.discountNote = '';
                         this.billNumber = Math.floor(Math.random() * 90000) + 10000;
                     }, 1000);
                 },
@@ -995,6 +1081,8 @@
                             this.bill.type = billData.type || 'ใบเสร็จรับเงิน';
                             this.bill.customerName = billData.customerName || '';
                             this.bill.receivedAmount = billData.receivedAmount || null; 
+                            this.bill.discountAmount = billData.discountAmount || 0;
+                            this.bill.discountNote = billData.discountNote || '';
                             this.bill.items = JSON.parse(JSON.stringify(billData.items)); 
                             this.billNumber = billData.billNumber;
                             this.currentTab = 'create';
