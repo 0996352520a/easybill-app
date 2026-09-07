@@ -222,13 +222,13 @@
                                 </div>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label><input v-model="quickEdit.barcode" type="text" placeholder="บาร์โค้ด" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono bg-gray-50"></div>
-                                    <div><label class="text-xs text-orange-600 font-bold mb-1 block">แก้ทุน (฿)</label><input v-model.number="quickEdit.cost" type="number" placeholder="0" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50"></div>
-                                    <div><label class="text-xs text-green-600 font-bold mb-1 block">แก้ราคา (฿)</label><input v-model.number="quickEdit.price" type="number" placeholder="0" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-400 bg-green-50"></div>
-                                    <div><label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label><input v-model.number="quickEdit.stock" type="number" placeholder="0" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50"></div>
+                                    <div><label class="text-xs text-orange-600 font-bold mb-1 block">แก้ทุน (฿)</label><input v-model.number="quickEdit.cost" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50"></div>
+                                    <div><label class="text-xs text-green-600 font-bold mb-1 block">แก้ราคา (฿)</label><input v-model.number="quickEdit.price" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-400 bg-green-50"></div>
+                                    <div><label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label><input v-model.number="quickEdit.stock" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50"></div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3 border-t border-blue-100 pt-3">
-                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
-                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/ชิ้น)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
+                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
+                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/หน่วย)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                                 </div>
                             </div>
                             <div v-else class="text-center py-10 text-gray-400 text-sm border-2 border-dashed border-blue-200 rounded-xl bg-white/50">เลือกสินค้าด้านบน หรือคลิกปุ่ม "✏️ แก้ไข" ที่ตารางด้านล่าง</div>
@@ -248,13 +248,13 @@
                             </div>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">รหัสบาร์โค้ด</label><input v-model="newProduct.barcode" type="text" placeholder="สแกนหรือพิมพ์" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 font-mono text-sm"></div>
-                                <div><label class="text-xs text-orange-600 font-bold mb-1 block">ต้นทุน (฿)</label><input v-model.number="newProduct.cost" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50 text-sm"></div>
-                                <div><label class="text-xs text-green-600 font-bold mb-1 block">ราคาขาย (฿)</label><input v-model.number="newProduct.price" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-green-400 bg-green-50 text-sm font-bold"></div>
-                                <div><label class="text-xs text-blue-700 font-bold mb-1 block">สต็อกเริ่มต้น</label><input v-model.number="newProduct.stock" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-bold text-blue-700"></div>
+                                <div><label class="text-xs text-orange-600 font-bold mb-1 block">ต้นทุน (฿)</label><input v-model.number="newProduct.cost" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50 text-sm"></div>
+                                <div><label class="text-xs text-green-600 font-bold mb-1 block">ราคาขาย (฿)</label><input v-model.number="newProduct.price" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-green-400 bg-green-50 text-sm font-bold"></div>
+                                <div><label class="text-xs text-blue-700 font-bold mb-1 block">สต็อกเริ่มต้น</label><input v-model.number="newProduct.stock" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-bold text-blue-700"></div>
                             </div>
                             <div class="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
-                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
-                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/ชิ้น)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
+                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
+                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/หน่วย)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                             </div>
                         </div>
                     </div>
@@ -276,7 +276,7 @@
                 <table class="w-full text-left border-collapse min-w-[900px] border border-gray-100 rounded-lg">
                     <thead>
                         <tr class="bg-gray-100 text-gray-600 whitespace-nowrap">
-                            <th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า (ก-ฮ, A-Z)</th><th class="p-3 text-right">ต้นทุน</th><th class="p-3 text-right">ราคาปลีก</th><th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th><th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขได้)</th><th class="p-3 text-center w-32">จัดการ</th>
+                            <th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า (ก-ฮ, A-Z)</th><th class="p-3 text-right">ต้นทุน</th><th class="p-3 text-right">ราคาปลีก</th><th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th><th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขทศนิยมได้)</th><th class="p-3 text-center w-32">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -287,13 +287,13 @@
                             <td class="p-3 text-right text-orange-600 text-sm">{{ (prod.cost || 0).toLocaleString() }} ฿</td>
                             <td class="p-3 text-right text-green-600 font-medium">{{ prod.price.toLocaleString() }} ฿</td>
                             <td class="p-3 text-center text-sm font-medium text-purple-600 bg-purple-50/30">
-                                <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ (ทุกๆ {{ prod.wholesaleQty }}ชิ้น)</span>
+                                <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ (ทุกๆ {{ prod.wholesaleQty }})</span>
                                 <span v-else class="text-gray-300">-</span>
                             </td>
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-1">
                                     <button @click="quickAdjustStock(prod.id, -1)" class="w-8 h-8 bg-red-100 text-red-600 rounded-full font-bold hover:bg-red-200 transition shadow-sm">-</button>
-                                    <input type="number" :value="prod.stock" @change="updateExactStock(prod.id, $event.target.value)" class="w-16 text-center font-bold text-lg border border-gray-200 rounded-md py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" :class="prod.stock <= 5 ? 'text-red-500' : 'text-blue-700'">
+                                    <input type="number" :value="prod.stock" @change="updateExactStock(prod.id, $event.target.value)" step="any" class="w-16 text-center font-bold text-lg border border-gray-200 rounded-md py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" :class="prod.stock <= 5 ? 'text-red-500' : 'text-blue-700'">
                                     <button @click="quickAdjustStock(prod.id, 1)" class="w-8 h-8 bg-green-100 text-green-600 rounded-full font-bold hover:bg-green-200 transition shadow-sm">+</button>
                                 </div>
                             </td>
@@ -374,8 +374,8 @@
                         <div class="flex flex-col gap-2">
                             <input v-model="manualItem.name" type="text" placeholder="ชื่อรายการ เช่น ค่าส่ง, บริการซ่อม" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
                             <div class="flex gap-2">
-                                <input v-model.number="manualItem.price" type="number" placeholder="ราคา (฿)" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                                <input v-model.number="manualItem.qty" type="number" placeholder="จำนวน" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                <input v-model.number="manualItem.price" type="number" placeholder="ราคา (฿)" step="any" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                <input v-model.number="manualItem.qty" type="number" placeholder="จำนวน" step="any" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
                             </div>
                             <button @click="addManualItem" class="w-full bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 font-medium text-sm transition mt-1">+ เพิ่มรายการนอกคลัง</button>
                         </div>
@@ -426,7 +426,7 @@
                         </div>
                     </div>
 
-                    <!-- แยกปุ่มบันทึก และ ปุ่มพิมพ์ออกจากกัน -->
+                    <!-- แยกปุ่มบันทึก และ ปุ่มพิมพ์ -->
                     <div class="flex gap-3 mt-4">
                         <button @click="saveBill(false)" class="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-blue-600 transition">
                             💾 บันทึกรายการ
@@ -453,24 +453,24 @@
                                     <td class="py-3 font-medium">
                                         {{ item.name }}
                                         <span v-if="!item.id" class="text-[10px] text-orange-500 ml-2 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
-                                        <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(จัดเซ็ต {{ item.wholesaleQty }} ชิ้น)</span>
+                                        <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(จัดเซ็ต {{ item.wholesaleQty }})</span>
                                     </td>
                                     <td class="py-3 text-center no-print">
                                         <div class="flex items-center justify-center gap-1">
                                             <button @click="decreaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">-</button>
-                                            <input v-model.number="item.qty" @change="validateQty(index)" type="number" min="1" class="w-14 text-center border border-gray-300 rounded-md py-1 px-1 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                            <input v-model.number="item.qty" @change="validateQty(index)" type="number" step="any" min="0.01" class="w-14 text-center border border-gray-300 rounded-md py-1 px-1 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400">
                                             <button @click="increaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">+</button>
                                         </div>
                                     </td>
                                     <td class="py-3 text-center print:table-cell hidden">{{ item.qty }}</td>
                                     <td class="py-3 text-right">
                                         <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-xs text-gray-400 line-through mr-1 no-print">{{ item.originalPrice }}</span>
-                                        {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString() }}
+                                        {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}
                                         <div v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 font-bold mt-1">
-                                            (ลดเซ็ตละ {{ (item.originalPrice * item.wholesaleQty) - (item.wholesalePrice * item.wholesaleQty) }}฿)
+                                            (ลดเซ็ตละ {{ Number(((item.originalPrice * item.wholesaleQty) - (item.wholesalePrice * item.wholesaleQty)).toFixed(2)) }}฿)
                                         </div>
                                     </td>
-                                    <td class="py-3 text-right font-medium text-teal-700">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
+                                    <td class="py-3 text-right font-medium text-teal-700">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
                                     <td class="py-3 text-center no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold text-sm">ลบ</button></td>
                                 </tr>
                             </tbody>
@@ -478,16 +478,16 @@
                         <div class="flex justify-end mb-8">
                             <div class="w-80 bg-teal-50 p-5 rounded-xl border border-teal-100">
                                 <div class="flex justify-between font-medium text-lg text-gray-600 mb-1" v-if="bill.discountAmount > 0">
-                                    <span>รวมเป็นเงิน:</span><span>{{ subTotalAmount.toLocaleString() }} ฿</span>
+                                    <span>รวมเป็นเงิน:</span><span>{{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
                                 </div>
                                 <div class="flex justify-between font-medium text-lg text-red-500 mb-2 pb-2 border-b border-red-200" v-if="bill.discountAmount > 0">
                                     <div>ส่วนลด: <span class="text-xs text-gray-500 block" v-if="bill.discountNote">({{ bill.discountNote }})</span></div>
-                                    <span>-{{ bill.discountAmount.toLocaleString() }} ฿</span>
+                                    <span>-{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
                                 </div>
 
-                                <div class="flex justify-between font-bold text-xl text-gray-700 mb-2"><span>ยอดรวมสุทธิ:</span><span>{{ totalAmount.toLocaleString() }} ฿</span></div>
-                                <div v-if="bill.receivedAmount > 0" class="flex justify-between text-gray-600 mb-2 font-medium"><span>รับเงินมา:</span><span>{{ bill.receivedAmount.toLocaleString() }} ฿</span></div>
-                                <div v-if="bill.receivedAmount > 0" class="flex justify-between font-bold text-2xl text-green-700 pt-2 border-t border-teal-200"><span>เงินทอน:</span><span>{{ (bill.receivedAmount - totalAmount).toLocaleString() }} ฿</span></div>
+                                <div class="flex justify-between font-bold text-xl text-gray-700 mb-2"><span>ยอดรวมสุทธิ:</span><span>{{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
+                                <div v-if="bill.receivedAmount > 0" class="flex justify-between text-gray-600 mb-2 font-medium"><span>รับเงินมา:</span><span>{{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
+                                <div v-if="bill.receivedAmount > 0" class="flex justify-between font-bold text-2xl text-green-700 pt-2 border-t border-teal-200"><span>เงินทอน:</span><span>{{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
                             </div>
                         </div>
                     </div>
@@ -515,26 +515,25 @@
                                         <span class="print:inline hidden">{{ item.qty }}</span>
                                         <div class="flex items-center justify-center gap-1 no-print">
                                             <button @click="decreaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">-</button>
-                                            <input v-model.number="item.qty" @change="validateQty(index)" type="number" class="w-10 text-center border rounded py-0.5 px-0 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-teal-400">
+                                            <input v-model.number="item.qty" @change="validateQty(index)" type="number" step="any" class="w-10 text-center border rounded py-0.5 px-0 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-teal-400">
                                             <button @click="increaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">+</button>
                                         </div>
                                     </td>
-                                    <td class="py-2 text-right align-middle">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
+                                    <td class="py-2 text-right align-middle">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
                                     <td class="py-2 text-center align-middle no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold ml-1">x</button></td>
                                 </tr>
                             </tbody>
                         </table>
                         
-                        <!-- แสดงส่วนลดบนสลิป -->
-                        <div class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2" v-if="bill.discountAmount > 0">รวมเป็นเงิน: {{ subTotalAmount.toLocaleString() }} ฿</div>
+                        <div class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2" v-if="bill.discountAmount > 0">รวมเป็นเงิน: {{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
                         <div class="text-right text-sm text-red-600" v-if="bill.discountAmount > 0">
-                            ส่วนลด: -{{ bill.discountAmount.toLocaleString() }} ฿
+                            ส่วนลด: -{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
                             <div class="text-[10px] text-gray-500" v-if="bill.discountNote">({{ bill.discountNote }})</div>
                         </div>
 
-                        <div class="text-right font-bold text-lg" :class="bill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ totalAmount.toLocaleString() }} ฿</div>
-                        <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString() }} ฿</div>
-                        <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString() }} ฿</div>
+                        <div class="text-right font-bold text-lg" :class="bill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                        <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                        <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
                         <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
                     </div>
                 </div>
@@ -548,13 +547,13 @@
             <p :class="shop.paperSize === 'slip' ? 'text-xs' : 'text-lg'">ประจำวันที่: <strong>{{ formattedSelectedDate }}</strong></p>
             <p :class="shop.paperSize === 'slip' ? 'text-xs border-b pb-2' : 'text-lg border-b-2 pb-2'">บิลทั้งหมด: {{ selectedDateBills.length }} ใบ</p>
             <p :class="shop.paperSize === 'slip' ? 'text-xs pb-2' : 'text-lg pb-4'" class="mb-4">
-                <span class="font-bold">ยอดขาย: {{ selectedDateTotal.toLocaleString() }} ฿</span> | 
-                <span class="font-bold text-green-700">กำไร: {{ selectedDateProfit.toLocaleString() }} ฿</span>
+                <span class="font-bold">ยอดขาย: {{ selectedDateTotal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span> | 
+                <span class="font-bold text-green-700">กำไร: {{ selectedDateProfit.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
             </p>
             <table class="w-full text-left border-collapse" :class="shop.paperSize === 'slip' ? 'text-xs' : ''">
                 <thead><tr class="bg-gray-100 text-gray-700 border-b border-gray-800"><th class="p-2">บิล / ลูกค้า</th><th class="p-2 text-right">ยอดรวม</th></tr></thead>
                 <tbody>
-                    <tr v-for="b in selectedDateBills" :key="b.id" class="border-b"><td class="p-2">INV-{{ b.billNumber }}<br><span class="text-gray-500">{{ b.customerName || 'ทั่วไป' }}</span></td><td class="p-2 text-right font-medium text-teal-700">{{ b.total.toLocaleString() }}</td></tr>
+                    <tr v-for="b in selectedDateBills" :key="b.id" class="border-b"><td class="p-2">INV-{{ b.billNumber }}<br><span class="text-gray-500">{{ b.customerName || 'ทั่วไป' }}</span></td><td class="p-2 text-right font-medium text-teal-700">{{ b.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td></tr>
                 </tbody>
             </table>
         </div>
@@ -575,21 +574,21 @@
                             {{ item.name }}
                             <div class="text-[10px] text-gray-500" v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0">(เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})</div>
                         </td>
-                        <td class="py-2 text-center">{{ item.qty }}</td><td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
+                        <td class="py-2 text-center">{{ item.qty }}</td><td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
                     </tr>
                 </tbody>
             </table>
             
-            <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2">รวมเป็นเงิน: {{ (viewingBill.subTotal || (viewingBill.total + viewingBill.discountAmount)).toLocaleString() }} ฿</div>
+            <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2">รวมเป็นเงิน: {{ (viewingBill.subTotal || (viewingBill.total + viewingBill.discountAmount)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
             <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm text-red-600">
-                ส่วนลด: -{{ viewingBill.discountAmount.toLocaleString() }} ฿
+                ส่วนลด: -{{ viewingBill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
                 <div class="text-[10px] text-gray-500" v-if="viewingBill.discountNote">({{ viewingBill.discountNote }})</div>
             </div>
 
-            <div class="text-right font-bold text-lg" :class="viewingBill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ viewingBill.total.toLocaleString() }} ฿</div>
+            <div class="text-right font-bold text-lg" :class="viewingBill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ viewingBill.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
             
-            <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString() }} ฿</div>
-            <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString() }} ฿</div>
+            <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+            <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
             <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
         </div>
     </div>
@@ -790,13 +789,14 @@
                     }, 50);
                 },
 
+                // คำนวณราคาสินค้ารองรับทศนิยม
                 updateItemPrice(item) {
                     if (item.wholesaleQty > 0) {
                         const bundles = Math.floor(item.qty / item.wholesaleQty);
-                        const remainder = item.qty % item.wholesaleQty;
-                        item.lineTotal = (bundles * item.wholesaleQty * item.wholesalePrice) + (remainder * item.originalPrice);
+                        const remainder = Number((item.qty - (bundles * item.wholesaleQty)).toFixed(3)); // รองรับทศนิยม
+                        item.lineTotal = Number(((bundles * item.wholesaleQty * item.wholesalePrice) + (remainder * item.originalPrice)).toFixed(2));
                     } else {
-                        item.lineTotal = item.originalPrice * item.qty;
+                        item.lineTotal = Number((item.originalPrice * item.qty).toFixed(2));
                     }
                 },
 
@@ -818,7 +818,7 @@
                         wholesaleQty: 0,
                         wholesalePrice: 0,
                         qty: Number(this.manualItem.qty),
-                        lineTotal: Number(this.manualItem.price) * Number(this.manualItem.qty)
+                        lineTotal: Number((Number(this.manualItem.price) * Number(this.manualItem.qty)).toFixed(2))
                     });
                     this.manualItem = { name: '', price: '', qty: 1 };
                 },
@@ -1002,7 +1002,10 @@
 
                 validateQty(index) {
                     const item = this.bill.items[index];
-                    if (!item.qty || item.qty < 1 || isNaN(item.qty)) { item.qty = 1; }
+                    // ถ้าผู้ใช้พิมพ์ช่องว่าง หรือเลขติดลบ ให้เซ็ตเป็น 1
+                    if (item.qty === undefined || item.qty === null || item.qty === '' || item.qty <= 0 || isNaN(item.qty)) { 
+                        item.qty = 1; 
+                    }
                     if (item.id) {
                         const prodInDb = this.products.find(p => p.id === item.id);
                         if (prodInDb && item.qty > prodInDb.stock) {
@@ -1013,7 +1016,6 @@
                     this.updateItemPrice(item);
                 },
                 
-                // แยกฟังก์ชันการบันทึกออกมา โดยรับค่าว่าต้องการพิมพ์หรือไม่ (true/false)
                 async saveBill(shouldPrint) {
                     if(this.bill.items.length === 0) return alert('กรุณาเลือกสินค้าลงบิลก่อนครับ');
                     
@@ -1026,9 +1028,9 @@
 
                     let totalCost = 0;
                     for (const item of this.bill.items) {
-                        totalCost += (item.cost || 0) * item.qty;
+                        totalCost += Number(((item.cost || 0) * item.qty).toFixed(2));
                     }
-                    const billProfit = this.totalAmount - totalCost;
+                    const billProfit = Number((this.totalAmount - totalCost).toFixed(2));
 
                     await addDoc(collection(db, "bills"), {
                         customerName: this.bill.customerName, 
@@ -1049,13 +1051,12 @@
                     for (const item of this.bill.items) {
                         if (item.id) {
                             const prodDb = this.products.find(p => p.id === item.id);
-                            if (prodDb) await updateDoc(doc(db, "products", item.id), { stock: prodDb.stock - item.qty });
+                            if (prodDb) await updateDoc(doc(db, "products", item.id), { stock: Number((prodDb.stock - item.qty).toFixed(3)) });
                         }
                     }
 
                     this.logActivity('ออกบิล', `ออกบิล INV-${this.billNumber} ยอดรวม ${this.totalAmount.toLocaleString()} บาท ${shouldPrint ? '(พิมพ์)' : '(ไม่พิมพ์)'}`);
 
-                    // ฟังก์ชันเคลียร์ฟอร์ม
                     const resetForm = () => {
                         this.bill.items = []; 
                         this.bill.customerName = ''; 
@@ -1087,7 +1088,7 @@
                         for (const item of billData.items) {
                             if (item.id) {
                                 const prodDb = this.products.find(p => p.id === item.id);
-                                if (prodDb) await updateDoc(doc(db, "products", item.id), { stock: prodDb.stock + item.qty });
+                                if (prodDb) await updateDoc(doc(db, "products", item.id), { stock: Number((prodDb.stock + item.qty).toFixed(3)) });
                             }
                         }
                         await deleteDoc(doc(db, "bills", billData.id));
