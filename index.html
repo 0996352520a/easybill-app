@@ -147,7 +147,7 @@
             </div>
         </div>
 
-        <!-- ================= ประวัติการขาย ================= -->
+        <!-- ================= ประวัติการขาย (ระบบค้นหาลูกค้า) ================= -->
         <div v-show="currentTab === 'history'" class="no-print space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
                 <div>
@@ -194,7 +194,7 @@
             </div>
         </div>
 
-        <!-- ================= คลังสินค้า ================= -->
+        <!-- ================= คลังสินค้า (อัปเดต UI พิมพ์สต็อกได้ & ปุ่มแก้ไขด่วน) ================= -->
         <div v-show="currentTab === 'products'" class="no-print space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                 
@@ -203,6 +203,7 @@
                     <div>
                         <h3 class="font-bold text-blue-800 text-lg mb-4 flex items-center gap-2">⚡ แผงแก้ไขสินค้าด่วน</h3>
                         <div class="space-y-4">
+                            <!-- เลือกสินค้าเพื่อแก้ไข -->
                             <div class="flex flex-col md:flex-row gap-3">
                                 <select v-model="quickEdit.category" @change="syncCategoryFilter" class="flex-1 border border-blue-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white font-medium text-blue-800 shadow-sm text-sm">
                                     <option value="">-- 1. เลือกหมวดหมู่ --</option>
@@ -214,6 +215,7 @@
                                 </select>
                             </div>
                             
+                            <!-- ฟอร์มแก้ไข -->
                             <div v-if="quickEdit.productId" class="bg-white p-4 rounded-xl shadow-sm border border-blue-300 mt-2 space-y-4">
                                 <div class="flex flex-col md:flex-row gap-3">
                                     <div class="md:w-1/3">
@@ -246,9 +248,10 @@
                                     </div>
                                 </div>
                                 
+                                <!-- ระบบราคาส่ง (Edit) -->
                                 <div class="grid grid-cols-2 gap-3 border-t border-blue-100 pt-3">
-                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำราคาส่ง (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อ 3 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
-                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาส่ง (฿/ชิ้น)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ราคาลดเหลือ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
+                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
+                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/ชิ้น)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                                 </div>
                             </div>
                             <div v-else class="text-center py-10 text-gray-400 text-sm border-2 border-dashed border-blue-200 rounded-xl bg-white/50">
@@ -297,9 +300,10 @@
                                 </div>
                             </div>
 
+                            <!-- ระบบราคาส่ง (Add) -->
                             <div class="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
-                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำราคาส่ง (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อ 3 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
-                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาส่ง (฿/ชิ้น)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
+                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
+                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/ชิ้น)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                             </div>
                         </div>
                     </div>
@@ -328,7 +332,7 @@
                             <th class="p-3">ชื่อสินค้า</th>
                             <th class="p-3 text-right">ต้นทุน</th>
                             <th class="p-3 text-right">ราคาปลีก</th>
-                            <th class="p-3 text-center bg-purple-50">ราคาส่ง (ขั้นต่ำ)</th>
+                            <th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th>
                             <th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขได้)</th>
                             <th class="p-3 text-center w-32">จัดการ</th>
                         </tr>
@@ -341,9 +345,10 @@
                             <td class="p-3 text-right text-orange-600 text-sm">{{ (prod.cost || 0).toLocaleString() }} ฿</td>
                             <td class="p-3 text-right text-green-600 font-medium">{{ prod.price.toLocaleString() }} ฿</td>
                             <td class="p-3 text-center text-sm font-medium text-purple-600 bg-purple-50/30">
-                                <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ ({{ prod.wholesaleQty }}ชิ้น)</span>
+                                <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ (ทุกๆ {{ prod.wholesaleQty }}ชิ้น)</span>
                                 <span v-else class="text-gray-300">-</span>
                             </td>
+                            <!-- ส่วนแก้ไขสต็อก (คลิกพิมพ์ได้เลย) -->
                             <td class="p-3 text-center">
                                 <div class="flex items-center justify-center gap-1">
                                     <button @click="quickAdjustStock(prod.id, -1)" class="w-8 h-8 bg-red-100 text-red-600 rounded-full font-bold hover:bg-red-200 transition shadow-sm">-</button>
@@ -351,6 +356,7 @@
                                     <button @click="quickAdjustStock(prod.id, 1)" class="w-8 h-8 bg-green-100 text-green-600 rounded-full font-bold hover:bg-green-200 transition shadow-sm">+</button>
                                 </div>
                             </td>
+                            <!-- ปุ่มจัดการ -->
                             <td class="p-3 text-center flex justify-center gap-1">
                                 <button @click="editProductFromTable(prod)" class="text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-3 py-1 rounded shadow-sm transition">✏️</button>
                                 <button @click="deleteProduct(prod.id)" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-1 rounded shadow-sm transition">🗑️</button>
@@ -421,8 +427,9 @@
                                 <span class="font-medium text-gray-700 text-sm leading-tight mt-1">{{ prod.name }}</span>
                                 <div class="flex flex-col items-center mt-1">
                                     <span class="text-teal-600 text-xs font-bold">{{ prod.price.toLocaleString() }} ฿</span>
-                                    <span v-if="prod.wholesaleQty > 0" class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded mt-1 border border-purple-100">
-                                        ซื้อ {{ prod.wholesaleQty }}ชิ้น ลดเหลือ {{ prod.wholesalePrice }}฿
+                                    <!-- แจ้งเตือนโปรโมชั่นให้แคชเชียร์เห็นในกล่อง -->
+                                    <span v-if="prod.wholesaleQty > 0" class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded mt-1 border border-purple-100 text-center w-full">
+                                        ทุกๆ {{ prod.wholesaleQty }}ชิ้น<br>เหลือชิ้นละ {{ prod.wholesalePrice }}฿
                                     </span>
                                 </div>
                             </div>
@@ -482,8 +489,9 @@
                                     <td class="py-3 font-medium">
                                         {{ item.name }}
                                         <span v-if="!item.id" class="text-[10px] text-orange-500 ml-2 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
-                                        <span v-if="item.wholesaleQty > 0 && item.qty >= item.wholesaleQty" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(ราคาส่ง)</span>
+                                        <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(จัดเซ็ต {{ item.wholesaleQty }} ชิ้น)</span>
                                     </td>
+                                    
                                     <td class="py-3 text-center no-print">
                                         <div class="flex items-center justify-center gap-1">
                                             <button @click="decreaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">-</button>
@@ -491,12 +499,20 @@
                                             <button @click="increaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">+</button>
                                         </div>
                                     </td>
+                                    
                                     <td class="py-3 text-center print:table-cell hidden">{{ item.qty }}</td>
+                                    
                                     <td class="py-3 text-right">
-                                        <span v-if="item.wholesaleQty > 0 && item.qty >= item.wholesaleQty" class="text-xs text-gray-400 line-through mr-1 no-print">{{ item.originalPrice }}</span>
-                                        {{ item.price.toLocaleString() }}
+                                        {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString() }}
+                                        <!-- โชว์โน้ตการคิดราคาแบบจัดเซ็ตในบิลให้ลูกค้าดู -->
+                                        <div v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 font-bold mt-1">
+                                            (ลดเซ็ตละ {{ (item.originalPrice * item.wholesaleQty) - (item.wholesalePrice * item.wholesaleQty) }}฿)
+                                        </div>
                                     </td>
-                                    <td class="py-3 text-right font-medium text-teal-700">{{ (item.price * item.qty).toLocaleString() }}</td>
+                                    
+                                    <td class="py-3 text-right font-medium text-teal-700">
+                                        {{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}
+                                    </td>
                                     <td class="py-3 text-center no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold text-sm">ลบ</button></td>
                                 </tr>
                             </tbody>
@@ -522,8 +538,12 @@
                                     <td class="py-2 pr-1 align-middle">
                                         {{ item.name }}
                                         <span v-if="!item.id" class="text-[10px] text-orange-500 ml-1 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
-                                        <span v-if="item.wholesaleQty > 0 && item.qty >= item.wholesaleQty" class="text-[10px] text-purple-600 ml-1">(ราคาส่ง)</span>
-                                        <div class="text-xs text-gray-500">@{{ item.price }}</div>
+                                        <div class="text-xs text-gray-500">
+                                            @{{ item.originalPrice !== undefined ? item.originalPrice : item.price }}
+                                            <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600">
+                                                (เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="py-2 text-center align-middle">
                                         <span class="print:inline hidden">{{ item.qty }}</span>
@@ -533,7 +553,7 @@
                                             <button @click="increaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">+</button>
                                         </div>
                                     </td>
-                                    <td class="py-2 text-right align-middle">{{ (item.price * item.qty).toLocaleString() }}</td>
+                                    <td class="py-2 text-right align-middle">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
                                     <td class="py-2 text-center align-middle no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold ml-1">x</button></td>
                                 </tr>
                             </tbody>
@@ -578,9 +598,11 @@
                 <tbody>
                     <tr v-for="(item, index) in viewingBill.items" :key="index" class="border-b border-gray-100">
                         <td class="py-2">
-                            {{ item.name }}<span v-if="item.wholesaleQty > 0 && item.qty >= item.wholesaleQty" class="text-[10px] text-purple-600 ml-1">(ราคาส่ง)</span>
+                            {{ item.name }}
+                            <div class="text-[10px] text-gray-500" v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0">(เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})</div>
                         </td>
-                        <td class="py-2 text-center">{{ item.qty }}</td><td class="py-2 text-right">{{ (item.price * item.qty).toLocaleString() }}</td>
+                        <td class="py-2 text-center">{{ item.qty }}</td>
+                        <td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString() }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -648,7 +670,11 @@
             },
             computed: {
                 currentDate() { return new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }); },
-                totalAmount() { return this.bill.items.reduce((sum, item) => sum + (item.price * item.qty), 0); },
+                
+                // แก้ไขการคำนวณ totalAmount โดยใช้ lineTotal ที่คำนวณมาแล้ว
+                totalAmount() { 
+                    return this.bill.items.reduce((sum, item) => sum + (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty), 0); 
+                },
                 
                 formattedSelectedDate() {
                     if(!this.selectedDate) return '';
@@ -766,11 +792,14 @@
                     }, 50);
                 },
 
+                // ฟังก์ชันหลักที่ใช้คำนวณราคาสุทธิของสินค้าแบบจัดเซ็ต
                 updateItemPrice(item) {
-                    if (item.wholesaleQty > 0 && item.qty >= item.wholesaleQty) {
-                        item.price = item.wholesalePrice;
+                    if (item.wholesaleQty > 0) {
+                        const bundles = Math.floor(item.qty / item.wholesaleQty);
+                        const remainder = item.qty % item.wholesaleQty;
+                        item.lineTotal = (bundles * item.wholesaleQty * item.wholesalePrice) + (remainder * item.originalPrice);
                     } else {
-                        item.price = item.originalPrice;
+                        item.lineTotal = item.originalPrice * item.qty;
                     }
                 },
 
@@ -791,7 +820,8 @@
                         cost: 0, 
                         wholesaleQty: 0,
                         wholesalePrice: 0,
-                        qty: Number(this.manualItem.qty) 
+                        qty: Number(this.manualItem.qty),
+                        lineTotal: Number(this.manualItem.price) * Number(this.manualItem.qty)
                     });
                     this.manualItem = { name: '', price: '', qty: 1 };
                 },
@@ -915,11 +945,9 @@
                     if(prod) this.logActivity('แก้ไขสินค้า', `อัปเดต "${finalName}"`);
                     alert('อัปเดตข้อมูลสำเร็จ!');
                     
-                    // เก็บหมวดหมู่ปัจจุบันเอาไว้ก่อนเคลียร์ฟอร์ม เพื่อให้ค้างอยู่หน้าเดิม
                     const keepCategory = this.quickEdit.category;
-                    
                     this.quickEdit = { category: keepCategory, productId: '', newCategory: '', newName: '', barcode: '', cost: '', price: '', stock: '', wholesaleQty: '', wholesalePrice: '' }; 
-                    this.inventoryCategory = finalCategory; // ให้ตารางด้านล่างแสดงหมวดหมู่เดียวกับที่เพิ่งแก้ไขไป
+                    this.inventoryCategory = finalCategory;
                 },
 
                 async quickAdjustStock(id, amount) {
@@ -943,12 +971,13 @@
                         const newItem = { 
                             id: prod.id, 
                             name: prod.name, 
-                            originalPrice: prod.price, // เก็บราคาเดิมไว้
+                            originalPrice: prod.price, // เก็บราคาปกติต่อชิ้นไว้แสดงผล
                             price: prod.price, 
                             cost: prod.cost || 0, 
                             wholesaleQty: prod.wholesaleQty || 0,
                             wholesalePrice: prod.wholesalePrice || 0,
-                            qty: 1 
+                            qty: 1,
+                            lineTotal: prod.price
                         };
                         this.updateItemPrice(newItem);
                         this.bill.items.push(newItem); 
