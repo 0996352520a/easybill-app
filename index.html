@@ -34,562 +34,651 @@
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen text-gray-800">
-    <div id="app" class="max-w-6xl mx-auto p-4 md:p-6">
-        
-        <!-- เมนูหลัก -->
-        <div v-if="!isStandaloneDashboard" class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
-            <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"><span v-if="isOnline">☁️ Online</span><span v-else class="text-orange-700 bg-orange-100">⚡ Offline</span></span></h1>
+    <div id="app">
+        <!-- ================= หน้าต่างระบบหลัก (แคชเชียร์) ================= -->
+        <div v-if="!isCustomerDisplay" class="max-w-6xl mx-auto p-4 md:p-6">
             
-            <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">📊 ยอดขาย</button>
-            <button @click="currentTab = 'create'" :class="currentTab === 'create' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">สร้างบิล</button>
-            <button @click="currentTab = 'products'" :class="currentTab === 'products' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">คลังสินค้า</button>
-            <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ประวัติ</button>
-            <button @click="currentTab = 'logs'" :class="currentTab === 'logs' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">กิจกรรม</button>
-            <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
-        </div>
-
-        <!-- แบนเนอร์หัวจอ (โหมดแยกหน้าต่าง) -->
-        <div v-if="isStandaloneDashboard" class="no-print bg-gray-800 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center">
-            <div class="flex items-center gap-3"><span class="text-2xl">📊</span><div><h1 class="font-bold text-lg leading-tight">{{ shop.name || 'EasyBill' }} - Live Dashboard</h1><p class="text-xs text-gray-300">อัปเดตข้อมูล Real-time</p></div></div>
-            <div class="text-right">
-                <p class="text-lg font-bold text-teal-400">{{ currentDate }}</p>
-                <p class="text-sm" :class="isOnline ? 'text-gray-400' : 'text-orange-400'">
-                    <span v-if="isOnline" class="animate-pulse inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                    <span v-else class="inline-block w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
-                    {{ isOnline ? 'เชื่อมต่อ Cloud แล้ว' : 'ทำงานโหมดออฟไลน์' }}
-                </p>
+            <!-- เมนูหลัก -->
+            <div v-if="!isStandaloneDashboard" class="no-print flex flex-wrap gap-2 md:gap-4 mb-6 bg-white p-3 md:p-4 rounded-xl shadow-sm items-center">
+                <h1 class="text-xl font-bold text-teal-600 mr-auto flex items-center">📝 EasyBill <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full"><span v-if="isOnline">☁️ Online</span><span v-else class="text-orange-700 bg-orange-100">⚡ Offline</span></span></h1>
+                
+                <button @click="currentTab = 'dashboard'" :class="currentTab === 'dashboard' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">📊 ยอดขาย</button>
+                <button @click="currentTab = 'create'" :class="currentTab === 'create' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">สร้างบิล</button>
+                <button @click="currentTab = 'products'" :class="currentTab === 'products' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">คลังสินค้า</button>
+                <button @click="currentTab = 'history'" :class="currentTab === 'history' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ประวัติ</button>
+                <button @click="currentTab = 'logs'" :class="currentTab === 'logs' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">กิจกรรม</button>
+                <button @click="currentTab = 'settings'" :class="currentTab === 'settings' ? 'bg-teal-500 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'" class="px-4 py-2 rounded-lg font-medium transition">ตั้งค่า</button>
             </div>
-        </div>
 
-        <div v-if="!isOnline" class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded-lg no-print">
-            <p class="font-bold">⚠️ ขาดการเชื่อมต่ออินเทอร์เน็ต!</p>
-            <p class="text-sm">คุณยังสามารถออกบิลและใช้งานระบบได้ปกติ ข้อมูลจะถูกบันทึกไว้ในเครื่อง และจะส่งขึ้นระบบอัตโนมัติเมื่ออินเทอร์เน็ตกลับมา</p>
-        </div>
-
-        <!-- ================= แดชบอร์ดและกราฟ ================= -->
-        <div v-show="currentTab === 'dashboard'" class="no-print space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-700">สรุปยอดขาย กำไร และสต็อก</h2>
-                    <div class="flex items-center gap-2 mt-2">
-                        <label class="text-sm font-bold text-gray-500">📅 เลือกวันที่:</label>
-                        <input type="date" v-model="selectedDate" class="border border-gray-300 rounded-md px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
-                    </div>
-                </div>
-                <div class="flex gap-2 w-full md:w-auto">
-                    <button @click="openStandaloneDashboard" v-if="!isStandaloneDashboard" class="bg-gray-100 hover:bg-gray-200 text-blue-600 border border-blue-200 px-4 py-3 rounded-lg font-bold transition flex items-center justify-center gap-1 flex-1 md:flex-none">↗️ เปิดจอแยก</button>
-                    <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md flex-1 md:flex-none">🖨️ พิมพ์รายงาน</button>
+            <!-- แบนเนอร์หัวจอ (โหมดแยกหน้าต่างแดชบอร์ด) -->
+            <div v-if="isStandaloneDashboard" class="no-print bg-gray-800 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center">
+                <div class="flex items-center gap-3"><span class="text-2xl">📊</span><div><h1 class="font-bold text-lg leading-tight">{{ shop.name || 'EasyBill' }} - Live Dashboard</h1><p class="text-xs text-gray-300">อัปเดตข้อมูล Real-time</p></div></div>
+                <div class="text-right">
+                    <p class="text-lg font-bold text-teal-400">{{ currentDate }}</p>
+                    <p class="text-sm" :class="isOnline ? 'text-gray-400' : 'text-orange-400'">
+                        <span v-if="isOnline" class="animate-pulse inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                        <span v-else class="inline-block w-2 h-2 bg-orange-500 rounded-full mr-1"></span>
+                        {{ isOnline ? 'เชื่อมต่อ Cloud แล้ว' : 'ทำงานโหมดออฟไลน์' }}
+                    </p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-teal-500"><h3 class="text-gray-500 text-sm font-medium">ยอดขายรายวัน</h3><p class="text-2xl font-bold text-teal-600 mt-1">{{ selectedDateTotal.toLocaleString() }} ฿</p></div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500"><h3 class="text-gray-500 text-sm font-medium">กำไรรายวัน</h3><p class="text-2xl font-bold text-green-600 mt-1">{{ selectedDateProfit.toLocaleString() }} ฿</p></div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500"><h3 class="text-gray-500 text-sm font-medium">ยอดขายทั้งเดือน</h3><p class="text-2xl font-bold text-purple-600 mt-1">{{ selectedMonthTotal.toLocaleString() }} ฿</p></div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500"><h3 class="text-gray-500 text-sm font-medium">กำไรทั้งเดือน</h3><p class="text-2xl font-bold text-indigo-600 mt-1">{{ selectedMonthProfit.toLocaleString() }} ฿</p></div>
+            <div v-if="!isOnline" class="bg-orange-100 border-l-4 border-orange-500 text-orange-700 p-4 mb-6 rounded-lg no-print">
+                <p class="font-bold">⚠️ ขาดการเชื่อมต่ออินเทอร์เน็ต!</p>
+                <p class="text-sm">คุณยังสามารถออกบิลและใช้งานระบบได้ปกติ ข้อมูลจะถูกบันทึกไว้ในเครื่อง และจะส่งขึ้นระบบอัตโนมัติเมื่ออินเทอร์เน็ตกลับมา</p>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+            <!-- ================= แดชบอร์ดและกราฟ ================= -->
+            <div v-show="currentTab === 'dashboard'" class="no-print space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">📈 วิเคราะห์: ยอดขายสะสม เทียบกับ สต็อกคงเหลือ</h3>
-                        <p class="text-sm text-gray-500">แสดงข้อมูลสินค้าขายดี 15 อันดับแรก</p>
+                        <h2 class="text-xl font-bold text-gray-700">สรุปยอดขาย กำไร และสต็อก</h2>
+                        <div class="flex items-center gap-2 mt-2">
+                            <label class="text-sm font-bold text-gray-500">📅 เลือกวันที่:</label>
+                            <input type="date" v-model="selectedDate" class="border border-gray-300 rounded-md px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50">
+                        </div>
                     </div>
-                    <div class="flex items-center gap-3 w-full md:w-auto bg-teal-50 p-2 rounded-lg border border-teal-100">
-                        <span class="text-sm font-bold text-teal-800 whitespace-nowrap">📂 หมวดหมู่:</span>
-                        <select v-model="chartCategory" class="w-full md:w-48 border-none rounded-md p-1 outline-none focus:ring-2 focus:ring-teal-400 bg-white font-medium text-gray-700 shadow-sm text-sm">
-                            <option value="ทั้งหมด">-- แสดงทั้งหมด --</option>
-                            <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
-                        </select>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button @click="openStandaloneDashboard" v-if="!isStandaloneDashboard" class="bg-gray-100 hover:bg-gray-200 text-blue-600 border border-blue-200 px-4 py-3 rounded-lg font-bold transition flex items-center justify-center gap-1 flex-1 md:flex-none">↗️ เปิดจอแยก</button>
+                        <button @click="printReport" class="bg-blue-500 text-white px-5 py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md flex-1 md:flex-none">🖨️ พิมพ์รายงาน</button>
                     </div>
                 </div>
-                <div class="relative w-full" :class="isStandaloneDashboard ? 'h-[450px]' : 'h-72 md:h-96'"><canvas id="salesStockChart"></canvas></div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <h3 class="text-lg font-semibold mb-4">บิลการขายประจำวันที่ {{ formattedSelectedDate }}</h3>
-                <table class="w-full text-left border-collapse min-w-[600px]">
-                    <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th><th class="p-3 text-right text-green-600">กำไร (บาท)</th></tr></thead>
-                    <tbody>
-                        <tr v-for="b in selectedDateBills" :key="b.id" class="border-b hover:bg-gray-50">
-                            <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleTimeString('th-TH') }}</td>
-                            <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
-                            <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
-                            <td class="p-3 text-right font-bold text-teal-600">{{ b.total.toLocaleString() }}</td>
-                            <td class="p-3 text-right font-bold text-green-600">{{ (b.profit || 0).toLocaleString() }}</td>
-                        </tr>
-                        <tr v-if="selectedDateBills.length === 0"><td colspan="5" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่มีบิลในวันที่เลือก</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- ================= ประวัติกิจกรรม ================= -->
-        <div v-show="currentTab === 'logs'" class="no-print space-y-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500 flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-700">📋 บันทึกประวัติกิจกรรม (Activity Log)</h2>
-                    <p class="text-sm text-gray-500">ตรวจสอบการทำงานย้อนหลัง ข้อมูลนี้ไม่สามารถลบได้เพื่อความโปร่งใส</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-teal-500">
+                        <h3 class="text-gray-500 text-sm font-medium">ยอดขายรายวัน</h3>
+                        <p class="text-2xl font-bold text-teal-600 mt-1">{{ selectedDateTotal.toLocaleString() }} ฿</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-500">
+                        <h3 class="text-gray-500 text-sm font-medium">กำไรรายวัน</h3>
+                        <p class="text-2xl font-bold text-green-600 mt-1">{{ selectedDateProfit.toLocaleString() }} ฿</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500">
+                        <h3 class="text-gray-500 text-sm font-medium">ยอดขายทั้งเดือน</h3>
+                        <p class="text-2xl font-bold text-purple-600 mt-1">{{ selectedMonthTotal.toLocaleString() }} ฿</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500">
+                        <h3 class="text-gray-500 text-sm font-medium">กำไรทั้งเดือน</h3>
+                        <p class="text-2xl font-bold text-indigo-600 mt-1">{{ selectedMonthProfit.toLocaleString() }} ฿</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">📈 วิเคราะห์: ยอดขายสะสม เทียบกับ สต็อกคงเหลือ</h3>
+                            <p class="text-sm text-gray-500">แสดงข้อมูลสินค้าขายดี 15 อันดับแรก</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full md:w-auto bg-teal-50 p-2 rounded-lg border border-teal-100">
+                            <span class="text-sm font-bold text-teal-800 whitespace-nowrap">📂 หมวดหมู่:</span>
+                            <select v-model="chartCategory" class="w-full md:w-48 border-none rounded-md p-1 outline-none focus:ring-2 focus:ring-teal-400 bg-white font-medium text-gray-700 shadow-sm text-sm">
+                                <option value="ทั้งหมด">-- แสดงทั้งหมด --</option>
+                                <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="relative w-full" :class="isStandaloneDashboard ? 'h-[450px]' : 'h-72 md:h-96'"><canvas id="salesStockChart"></canvas></div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                    <h3 class="text-lg font-semibold mb-4">บิลการขายประจำวันที่ {{ formattedSelectedDate }}</h3>
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลา</th><th class="p-3">เลขที่บิล</th><th class="p-3">ลูกค้า</th><th class="p-3 text-right">ยอดรวม (บาท)</th><th class="p-3 text-right text-green-600">กำไร (บาท)</th></tr></thead>
+                        <tbody>
+                            <tr v-for="b in selectedDateBills" :key="b.id" class="border-b hover:bg-gray-50">
+                                <td class="p-3 text-sm">{{ new Date(b.timestamp).toLocaleTimeString('th-TH') }}</td>
+                                <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
+                                <td class="p-3">{{ b.customerName || 'ลูกค้าทั่วไป' }}</td>
+                                <td class="p-3 text-right font-bold text-teal-600">{{ b.total.toLocaleString() }}</td>
+                                <td class="p-3 text-right font-bold text-green-600">{{ (b.profit || 0).toLocaleString() }}</td>
+                            </tr>
+                            <tr v-if="selectedDateBills.length === 0"><td colspan="5" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่มีบิลในวันที่เลือก</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลาที่ทำรายการ</th><th class="p-3">ประเภทกิจกรรม</th><th class="p-3">รายละเอียด</th><th class="p-3">ผู้ทำรายการ / อุปกรณ์</th></tr></thead>
-                    <tbody>
-                        <tr v-for="log in activityLogs" :key="log.id" class="border-b hover:bg-gray-50 text-sm">
-                            <td class="p-3 text-gray-500">{{ new Date(log.timestamp).toLocaleString('th-TH') }}</td>
-                            <td class="p-3 font-semibold"><span class="bg-gray-200 px-2 py-1 rounded">{{ log.type }}</span></td>
-                            <td class="p-3 text-gray-700">{{ log.detail }}</td>
-                            <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-mono font-bold">{{ log.device }}</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- ================= ประวัติการขาย ================= -->
-        <div v-show="currentTab === 'history'" class="no-print space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลังทั้งหมด</h2>
-                    <p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ จากทั้งหมด {{ bills.length }} บิล)</p>
-                </div>
-                <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                    <input v-model="historySearch" type="text" placeholder="🔍 ค้นหาชื่อลูกค้า หรือเลขบิล..." class="border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-64 bg-gray-50">
-                </div>
-            </div>
-            
-            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[850px]">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600">
-                            <th class="p-3 w-32">เวลา</th>
-                            <th class="p-3 w-28">เลขที่บิล</th>
-                            <th class="p-3 w-40">ลูกค้า</th>
-                            <th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th>
-                            <th class="p-3 text-right w-28">ยอดรวม (฿)</th>
-                            <th class="p-3 text-center w-48">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="b in filteredHistoryBills" :key="b.id" class="border-b hover:bg-gray-50">
-                            <td class="p-3 text-xs text-gray-500">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
-                            <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
-                            <td class="p-3 font-medium text-teal-700">
-                                {{ b.customerName || 'ทั่วไป' }}
-                                <div v-if="b.discountAmount > 0" class="text-[10px] text-red-500 mt-1 bg-red-50 inline-block px-1 rounded border border-red-100">มีส่วนลด {{ b.discountAmount }}฿</div>
-                            </td>
-                            <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">
-                                {{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}
-                            </td>
-                            <td class="p-3 text-right font-medium text-gray-800">{{ b.total.toLocaleString() }}</td>
-                            <td class="p-3 text-center flex justify-center gap-1">
-                                <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
-                                <button @click="processBillAction(b, 'edit')" class="text-yellow-600 hover:text-yellow-800 font-bold text-sm bg-yellow-50 px-2 py-1 rounded shadow-sm">✏️ แก้ไข</button>
-                                <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
-                            </td>
-                        </tr>
-                        <tr v-if="filteredHistoryBills.length === 0">
-                            <td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ================= คลังสินค้า ================= -->
-        <div v-show="currentTab === 'products'" class="no-print space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                <!-- แผงซ้าย: อัปเดตด่วน -->
-                <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200 flex flex-col justify-between relative" id="quickEditPanel">
+            <!-- ================= ประวัติกิจกรรม ================= -->
+            <div v-show="currentTab === 'logs'" class="no-print space-y-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-500 flex justify-between items-center">
                     <div>
-                        <h3 class="font-bold text-blue-800 text-lg mb-4 flex items-center gap-2">⚡ แผงแก้ไขสินค้าด่วน</h3>
-                        <div class="space-y-4">
-                            <div class="flex flex-col md:flex-row gap-3">
-                                <select v-model="quickEdit.category" @change="syncCategoryFilter" class="flex-1 border border-blue-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white font-medium text-blue-800 shadow-sm text-sm">
-                                    <option value="">-- 1. เลือกหมวดหมู่ --</option>
-                                    <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
-                                </select>
-                                <select v-model="quickEdit.productId" @change="loadQuickEditProduct" :disabled="!quickEdit.category" class="flex-1 border border-blue-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white disabled:bg-gray-100 shadow-sm text-sm">
-                                    <option value="">-- 2. เลือกสินค้าเพื่อแก้ไข --</option>
-                                    <option v-for="p in products.filter(x => (x.category || 'ทั่วไป') === quickEdit.category).sort((a,b) => (a.name||'').localeCompare(b.name||'','th'))" :value="p.id">{{ p.name }}</option>
-                                </select>
-                            </div>
-                            <div v-if="quickEdit.productId" class="bg-white p-4 rounded-xl shadow-sm border border-blue-300 mt-2 space-y-4">
+                        <h2 class="text-xl font-bold text-gray-700">📋 บันทึกประวัติกิจกรรม (Activity Log)</h2>
+                        <p class="text-sm text-gray-500">ตรวจสอบการทำงานย้อนหลัง ข้อมูลนี้ไม่สามารถลบได้เพื่อความโปร่งใส</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[700px]">
+                        <thead><tr class="bg-gray-100 text-gray-600"><th class="p-3">เวลาที่ทำรายการ</th><th class="p-3">ประเภทกิจกรรม</th><th class="p-3">รายละเอียด</th><th class="p-3">ผู้ทำรายการ / อุปกรณ์</th></tr></thead>
+                        <tbody>
+                            <tr v-for="log in activityLogs" :key="log.id" class="border-b hover:bg-gray-50 text-sm">
+                                <td class="p-3 text-gray-500">{{ new Date(log.timestamp).toLocaleString('th-TH') }}</td>
+                                <td class="p-3 font-semibold"><span class="bg-gray-200 px-2 py-1 rounded">{{ log.type }}</span></td>
+                                <td class="p-3 text-gray-700">{{ log.detail }}</td>
+                                <td class="p-3"><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-mono font-bold">{{ log.device }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ================= ประวัติการขาย ================= -->
+            <div v-show="currentTab === 'history'" class="no-print space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-center bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-500 gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-700">ประวัติและจัดการบิลย้อนหลังทั้งหมด</h2>
+                        <p class="text-sm text-gray-500">ดูรายการย้อนหลัง (พบ {{ filteredHistoryBills.length }} รายการ จากทั้งหมด {{ bills.length }} บิล)</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                        <input v-model="historySearch" type="text" placeholder="🔍 ค้นหาชื่อลูกค้า หรือเลขบิล..." class="border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-64 bg-gray-50">
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[850px]">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600">
+                                <th class="p-3 w-32">เวลา</th>
+                                <th class="p-3 w-28">เลขที่บิล</th>
+                                <th class="p-3 w-40">ลูกค้า</th>
+                                <th class="p-3">🛍️ รายการสินค้าที่ซื้อ</th>
+                                <th class="p-3 text-right w-28">ยอดรวม (฿)</th>
+                                <th class="p-3 text-center w-48">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="b in filteredHistoryBills" :key="b.id" class="border-b hover:bg-gray-50">
+                                <td class="p-3 text-xs text-gray-500">{{ new Date(b.timestamp).toLocaleString('th-TH') }}</td>
+                                <td class="p-3 font-mono text-sm font-bold text-gray-700">INV-{{ b.billNumber }}</td>
+                                <td class="p-3 font-medium text-teal-700">
+                                    {{ b.customerName || 'ทั่วไป' }}
+                                    <div v-if="b.discountAmount > 0" class="text-[10px] text-red-500 mt-1 bg-red-50 inline-block px-1 rounded border border-red-100">มีส่วนลด {{ b.discountAmount }}฿</div>
+                                </td>
+                                <td class="p-3 text-xs text-gray-600 max-w-[200px] truncate" :title="b.items.map(i => `${i.name}(x${i.qty})`).join(', ')">
+                                    {{ b.items.map(i => `${i.name}(x${i.qty})`).join(', ') }}
+                                </td>
+                                <td class="p-3 text-right font-medium text-gray-800">{{ b.total.toLocaleString() }}</td>
+                                <td class="p-3 text-center flex justify-center gap-1">
+                                    <button @click="printPastBill(b)" class="text-blue-600 hover:text-blue-800 font-bold text-sm bg-blue-50 px-2 py-1 rounded shadow-sm">🖨️ ซ้ำ</button>
+                                    <button @click="processBillAction(b, 'edit')" class="text-yellow-600 hover:text-yellow-800 font-bold text-sm bg-yellow-50 px-2 py-1 rounded shadow-sm">✏️ แก้ไข</button>
+                                    <button @click="processBillAction(b, 'delete')" class="text-red-600 hover:text-red-800 font-bold text-sm bg-red-50 px-2 py-1 rounded shadow-sm">🗑️ ลบ</button>
+                                </td>
+                            </tr>
+                            <tr v-if="filteredHistoryBills.length === 0">
+                                <td colspan="6" class="p-8 text-center text-gray-400 border-dashed border-2 bg-gray-50">ไม่พบประวัติการขายที่ค้นหา</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ================= คลังสินค้า ================= -->
+            <div v-show="currentTab === 'products'" class="no-print space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                    <!-- แผงซ้าย: อัปเดตด่วน -->
+                    <div class="bg-blue-50 p-6 rounded-xl shadow-sm border border-blue-200 flex flex-col justify-between relative" id="quickEditPanel">
+                        <div>
+                            <h3 class="font-bold text-blue-800 text-lg mb-4 flex items-center gap-2">⚡ แผงแก้ไขสินค้าด่วน</h3>
+                            <div class="space-y-4">
                                 <div class="flex flex-col md:flex-row gap-3">
-                                    <div class="md:w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนหมวดหมู่</label><input v-model="quickEdit.newCategory" list="edit-category-list" type="text" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50"><datalist id="edit-category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist></div>
-                                    <div class="md:w-2/3"><label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนชื่อสินค้า</label><input v-model="quickEdit.newName" type="text" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-medium bg-gray-50"></div>
+                                    <select v-model="quickEdit.category" @change="syncCategoryFilter" class="flex-1 border border-blue-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white font-medium text-blue-800 shadow-sm text-sm">
+                                        <option value="">-- 1. เลือกหมวดหมู่ --</option>
+                                        <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
+                                    </select>
+                                    <select v-model="quickEdit.productId" @change="loadQuickEditProduct" :disabled="!quickEdit.category" class="flex-1 border border-blue-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400 bg-white disabled:bg-gray-100 shadow-sm text-sm">
+                                        <option value="">-- 2. เลือกสินค้าเพื่อแก้ไข --</option>
+                                        <option v-for="p in products.filter(x => (x.category || 'ทั่วไป') === quickEdit.category).sort((a,b) => (a.name||'').localeCompare(b.name||'','th'))" :value="p.id">{{ p.name }}</option>
+                                    </select>
+                                </div>
+                                <div v-if="quickEdit.productId" class="bg-white p-4 rounded-xl shadow-sm border border-blue-300 mt-2 space-y-4">
+                                    <div class="flex flex-col md:flex-row gap-3">
+                                        <div class="md:w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนหมวดหมู่</label><input v-model="quickEdit.newCategory" list="edit-category-list" type="text" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 bg-gray-50"><datalist id="edit-category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist></div>
+                                        <div class="md:w-2/3"><label class="text-xs text-gray-500 font-bold mb-1 block">เปลี่ยนชื่อสินค้า</label><input v-model="quickEdit.newName" type="text" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-medium bg-gray-50"></div>
+                                    </div>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label><input v-model="quickEdit.barcode" type="text" placeholder="บาร์โค้ด" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono bg-gray-50"></div>
+                                        <div><label class="text-xs text-orange-600 font-bold mb-1 block">แก้ทุน (฿)</label><input v-model.number="quickEdit.cost" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50"></div>
+                                        <div><label class="text-xs text-green-600 font-bold mb-1 block">แก้ราคา (฿)</label><input v-model.number="quickEdit.price" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-400 bg-green-50"></div>
+                                        <div><label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label><input v-model.number="quickEdit.stock" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50"></div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3 border-t border-blue-100 pt-3">
+                                        <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
+                                        <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/หน่วย)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
+                                    </div>
+                                </div>
+                                <div v-else class="text-center py-10 text-gray-400 text-sm border-2 border-dashed border-blue-200 rounded-xl bg-white/50">เลือกสินค้าด้านบน หรือคลิกปุ่ม "✏️ แก้ไข" ที่ตารางด้านล่าง</div>
+                            </div>
+                        </div>
+                        <button v-if="quickEdit.productId" @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md mt-5 text-lg">💾 บันทึกการแก้ไข</button>
+                    </div>
+
+                    <!-- แผงขวา: เพิ่มสินค้าใหม่ -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-gray-700 text-lg mb-4">➕ เพิ่มสินค้าใหม่เข้าคลัง</h3>
+                            <div class="space-y-4">
+                                <div class="flex flex-col md:flex-row gap-3">
+                                    <div class="md:w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">หมวดหมู่</label><input v-model="newProduct.category" list="category-list" type="text" placeholder="เลือกหรือพิมพ์ใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm"><datalist id="category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist></div>
+                                    <div class="md:w-2/3"><label class="text-xs text-gray-500 font-bold mb-1 block">ชื่อสินค้า</label><input v-model="newProduct.name" type="text" placeholder="ชื่อสินค้าใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-medium"></div>
                                 </div>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                    <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">แก้บาร์โค้ด</label><input v-model="quickEdit.barcode" type="text" placeholder="บาร์โค้ด" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-mono bg-gray-50"></div>
-                                    <div><label class="text-xs text-orange-600 font-bold mb-1 block">แก้ทุน (฿)</label><input v-model.number="quickEdit.cost" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50"></div>
-                                    <div><label class="text-xs text-green-600 font-bold mb-1 block">แก้ราคา (฿)</label><input v-model.number="quickEdit.price" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-green-400 bg-green-50"></div>
-                                    <div><label class="text-xs text-blue-700 font-bold mb-1 block">แก้สต็อก</label><input v-model.number="quickEdit.stock" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 font-bold text-blue-700 bg-blue-50"></div>
+                                    <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">รหัสบาร์โค้ด</label><input v-model="newProduct.barcode" type="text" placeholder="สแกนหรือพิมพ์" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 font-mono text-sm"></div>
+                                    <div><label class="text-xs text-orange-600 font-bold mb-1 block">ต้นทุน (฿)</label><input v-model.number="newProduct.cost" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50 text-sm"></div>
+                                    <div><label class="text-xs text-green-600 font-bold mb-1 block">ราคาขาย (฿)</label><input v-model.number="newProduct.price" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-green-400 bg-green-50 text-sm font-bold"></div>
+                                    <div><label class="text-xs text-blue-700 font-bold mb-1 block">สต็อกเริ่มต้น</label><input v-model.number="newProduct.stock" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-bold text-blue-700"></div>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3 border-t border-blue-100 pt-3">
-                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="quickEdit.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
-                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/หน่วย)</label><input v-model.number="quickEdit.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
+                                <div class="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
+                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
+                                    <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/หน่วย)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
                                 </div>
                             </div>
-                            <div v-else class="text-center py-10 text-gray-400 text-sm border-2 border-dashed border-blue-200 rounded-xl bg-white/50">เลือกสินค้าด้านบน หรือคลิกปุ่ม "✏️ แก้ไข" ที่ตารางด้านล่าง</div>
                         </div>
+                        <button @click="addProduct" class="w-full bg-teal-500 text-white py-3 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm mt-5">+ บันทึกสินค้าใหม่</button>
                     </div>
-                    <button v-if="quickEdit.productId" @click="saveQuickEdit" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition shadow-md mt-5 text-lg">💾 บันทึกการแก้ไข</button>
                 </div>
 
-                <!-- แผงขวา: เพิ่มสินค้าใหม่ -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
-                    <div>
-                        <h3 class="font-bold text-gray-700 text-lg mb-4">➕ เพิ่มสินค้าใหม่เข้าคลัง</h3>
-                        <div class="space-y-4">
-                            <div class="flex flex-col md:flex-row gap-3">
-                                <div class="md:w-1/3"><label class="text-xs text-gray-500 font-bold mb-1 block">หมวดหมู่</label><input v-model="newProduct.category" list="category-list" type="text" placeholder="เลือกหรือพิมพ์ใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm"><datalist id="category-list"><option v-for="cat in uniqueCategoriesList" :value="cat"></option></datalist></div>
-                                <div class="md:w-2/3"><label class="text-xs text-gray-500 font-bold mb-1 block">ชื่อสินค้า</label><input v-model="newProduct.name" type="text" placeholder="ชื่อสินค้าใหม่" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-medium"></div>
-                            </div>
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div class="col-span-2 md:col-span-1"><label class="text-xs text-gray-500 font-bold mb-1 block">รหัสบาร์โค้ด</label><input v-model="newProduct.barcode" type="text" placeholder="สแกนหรือพิมพ์" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 font-mono text-sm"></div>
-                                <div><label class="text-xs text-orange-600 font-bold mb-1 block">ต้นทุน (฿)</label><input v-model.number="newProduct.cost" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-orange-400 bg-orange-50 text-sm"></div>
-                                <div><label class="text-xs text-green-600 font-bold mb-1 block">ราคาขาย (฿)</label><input v-model.number="newProduct.price" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-green-400 bg-green-50 text-sm font-bold"></div>
-                                <div><label class="text-xs text-blue-700 font-bold mb-1 block">สต็อกเริ่มต้น</label><input v-model.number="newProduct.stock" type="number" placeholder="0" step="any" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-teal-400 bg-gray-50 text-sm font-bold text-blue-700"></div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
-                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ขั้นต่ำการจัดเซ็ต (ชิ้น)</label><input v-model.number="newProduct.wholesaleQty" type="number" placeholder="เช่น ซื้อทุกๆ 2 ชิ้น" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50"></div>
-                                <div><label class="text-xs text-purple-600 font-bold mb-1 block">ราคาเซ็ตละ (฿/หน่วย)</label><input v-model.number="newProduct.wholesalePrice" type="number" placeholder="ลดเหลือชิ้นละ" step="any" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 font-bold"></div>
-                            </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <h3 class="font-bold text-gray-700 text-lg">📋 รายการสินค้า ({{ filteredInventory.length }} รายการ)</h3>
+                        <div class="flex items-center gap-3 w-full md:w-auto bg-teal-50 p-2 rounded-lg border border-teal-100">
+                            <span class="text-sm font-bold text-teal-800 whitespace-nowrap">🔍 กรองหมวดหมู่:</span>
+                            <select v-model="inventoryCategory" class="w-full md:w-48 border-none rounded-md p-2 outline-none focus:ring-2 focus:ring-teal-400 bg-white font-medium text-gray-700 shadow-sm">
+                                <option value="ทั้งหมด">-- แสดงทั้งหมด --</option>
+                                <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
+                            </select>
                         </div>
                     </div>
-                    <button @click="addProduct" class="w-full bg-teal-500 text-white py-3 rounded-lg font-bold hover:bg-teal-600 transition shadow-sm mt-5">+ บันทึกสินค้าใหม่</button>
+                    <table class="w-full text-left border-collapse min-w-[900px] border border-gray-100 rounded-lg">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 whitespace-nowrap">
+                                <th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า (ก-ฮ, A-Z)</th><th class="p-3 text-right">ต้นทุน</th><th class="p-3 text-right">ราคาปลีก</th><th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th><th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขได้)</th><th class="p-3 text-center w-32">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="prod in filteredInventory" :key="prod.id" class="border-b hover:bg-gray-50">
+                                <td class="p-3 text-sm text-teal-600 font-medium">{{ prod.category || 'ทั่วไป' }}</td>
+                                <td class="p-3 text-sm font-mono text-gray-500">{{ prod.barcode || '-' }}</td>
+                                <td class="p-3 font-medium">{{ prod.name }}</td>
+                                <td class="p-3 text-right text-orange-600 text-sm">{{ (prod.cost || 0).toLocaleString() }} ฿</td>
+                                <td class="p-3 text-right text-green-600 font-medium">{{ prod.price.toLocaleString() }} ฿</td>
+                                <td class="p-3 text-center text-sm font-medium text-purple-600 bg-purple-50/30">
+                                    <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ (ทุกๆ {{ prod.wholesaleQty }})</span>
+                                    <span v-else class="text-gray-300">-</span>
+                                </td>
+                                <td class="p-3 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button @click="quickAdjustStock(prod.id, -1)" class="w-8 h-8 bg-red-100 text-red-600 rounded-full font-bold hover:bg-red-200 transition shadow-sm">-</button>
+                                        <input type="number" :value="prod.stock" @change="updateExactStock(prod.id, $event.target.value)" step="any" class="w-16 text-center font-bold text-lg border border-gray-200 rounded-md py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" :class="prod.stock <= 5 ? 'text-red-500' : 'text-blue-700'">
+                                        <button @click="quickAdjustStock(prod.id, 1)" class="w-8 h-8 bg-green-100 text-green-600 rounded-full font-bold hover:bg-green-200 transition shadow-sm">+</button>
+                                    </div>
+                                </td>
+                                <td class="p-3 text-center flex justify-center gap-1">
+                                    <button @click="editProductFromTable(prod)" class="text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-3 py-1 rounded shadow-sm transition">✏️</button>
+                                    <button @click="deleteProduct(prod.id)" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-1 rounded shadow-sm transition">🗑️</button>
+                                </td>
+                            </tr>
+                            <tr v-if="filteredInventory.length === 0"><td colspan="8" class="p-8 text-center text-gray-400 bg-gray-50 border-dashed border-2">ไม่พบสินค้าในหมวดหมู่นี้</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm overflow-x-auto">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h3 class="font-bold text-gray-700 text-lg">📋 รายการสินค้า ({{ filteredInventory.length }} รายการ)</h3>
-                    <div class="flex items-center gap-3 w-full md:w-auto bg-teal-50 p-2 rounded-lg border border-teal-100">
-                        <span class="text-sm font-bold text-teal-800 whitespace-nowrap">🔍 กรองหมวดหมู่:</span>
-                        <select v-model="inventoryCategory" class="w-full md:w-48 border-none rounded-md p-2 outline-none focus:ring-2 focus:ring-teal-400 bg-white font-medium text-gray-700 shadow-sm">
-                            <option value="ทั้งหมด">-- แสดงทั้งหมด --</option>
-                            <option v-for="cat in uniqueCategoriesList" :value="cat">{{ cat }}</option>
+            <!-- ================= ตั้งค่า ================= -->
+            <div v-show="currentTab === 'settings'" class="no-print bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">⚙️ ตั้งค่าระบบและร้านค้า</h2>
+                <div class="grid grid-cols-1 gap-4 max-w-2xl">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                        <label class="block text-sm text-blue-800 font-bold mb-1">👤 ชื่อพนักงาน / ชื่อประจำเครื่อง (ตั้งค่าเฉพาะเครื่องนี้)</label>
+                        <input v-model="localDeviceName" type="text" placeholder="เช่น แคชเชียร์ 1, กิตติพัฒน์..." class="w-full border rounded-lg p-3 bg-white font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <p class="text-xs text-gray-500 mt-2">* ชื่อนี้จะถูกบันทึกใน <strong>ประวัติกิจกรรม</strong> เพื่อให้รู้ว่าใคร/เครื่องไหนเป็นคนทำรายการ</p>
+                    </div>
+                    <hr class="my-2">
+                    <div>
+                        <label class="block text-sm text-gray-500 mb-1">รูปแบบกระดาษพิมพ์ใบเสร็จ</label>
+                        <select v-model="shop.paperSize" class="w-full border rounded-lg p-3 bg-gray-50 font-medium text-teal-700 focus:outline-none">
+                            <option value="a4">📄 ขนาด A4 (เครื่องปริ้นทั่วไป)</option>
+                            <option value="slip">🧾 ขนาด Slip 57x40mm (เครื่องปริ้นความร้อน)</option>
                         </select>
                     </div>
+                    <input v-model="shop.name" type="text" placeholder="ชื่อร้านค้า" class="w-full border rounded-lg p-3 bg-gray-50">
+                    <textarea v-model="shop.address" rows="3" placeholder="ที่อยู่ติดต่อ" class="w-full border rounded-lg p-3 bg-gray-50"></textarea>
+                    <button @click="saveShopData" class="bg-teal-500 text-white px-6 py-3 rounded-lg font-semibold w-full md:w-auto hover:bg-teal-600 shadow-md">💾 บันทึกตั้งค่า</button>
                 </div>
-                <table class="w-full text-left border-collapse min-w-[900px] border border-gray-100 rounded-lg">
-                    <thead>
-                        <tr class="bg-gray-100 text-gray-600 whitespace-nowrap">
-                            <th class="p-3">หมวดหมู่</th><th class="p-3">บาร์โค้ด</th><th class="p-3">ชื่อสินค้า (ก-ฮ, A-Z)</th><th class="p-3 text-right">ต้นทุน</th><th class="p-3 text-right">ราคาปลีก</th><th class="p-3 text-center bg-purple-50">จัดเซ็ตโปรฯ (ขั้นต่ำ)</th><th class="p-3 text-center">ปรับสต็อก (พิมพ์เลขทศนิยมได้)</th><th class="p-3 text-center w-32">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="prod in filteredInventory" :key="prod.id" class="border-b hover:bg-gray-50">
-                            <td class="p-3 text-sm text-teal-600 font-medium">{{ prod.category || 'ทั่วไป' }}</td>
-                            <td class="p-3 text-sm font-mono text-gray-500">{{ prod.barcode || '-' }}</td>
-                            <td class="p-3 font-medium">{{ prod.name }}</td>
-                            <td class="p-3 text-right text-orange-600 text-sm">{{ (prod.cost || 0).toLocaleString() }} ฿</td>
-                            <td class="p-3 text-right text-green-600 font-medium">{{ prod.price.toLocaleString() }} ฿</td>
-                            <td class="p-3 text-center text-sm font-medium text-purple-600 bg-purple-50/30">
-                                <span v-if="prod.wholesaleQty > 0">{{ prod.wholesalePrice.toLocaleString() }} ฿ (ทุกๆ {{ prod.wholesaleQty }})</span>
-                                <span v-else class="text-gray-300">-</span>
-                            </td>
-                            <td class="p-3 text-center">
-                                <div class="flex items-center justify-center gap-1">
-                                    <button @click="quickAdjustStock(prod.id, -1)" class="w-8 h-8 bg-red-100 text-red-600 rounded-full font-bold hover:bg-red-200 transition shadow-sm">-</button>
-                                    <input type="number" :value="prod.stock" @change="updateExactStock(prod.id, $event.target.value)" step="any" class="w-16 text-center font-bold text-lg border border-gray-200 rounded-md py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" :class="prod.stock <= 5 ? 'text-red-500' : 'text-blue-700'">
-                                    <button @click="quickAdjustStock(prod.id, 1)" class="w-8 h-8 bg-green-100 text-green-600 rounded-full font-bold hover:bg-green-200 transition shadow-sm">+</button>
+            </div>
+
+            <!-- ================= สร้างบิล (POS) ================= -->
+            <div v-show="currentTab === 'create'">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- แผงซ้าย: เลือกสินค้า -->
+                    <div class="no-print lg:col-span-5 space-y-4">
+                        
+                        <div class="bg-white p-5 rounded-xl shadow-sm">
+                            <h3 class="font-semibold text-gray-700 mb-3 flex justify-between items-center">
+                                <span>1. ข้อมูลลูกค้า <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded ml-2">{{ shop.paperSize === 'slip' ? '🧾 สลิป 57mm' : '📄 A4' }}</span></span>
+                                <!-- ปุ่มเปิดจอแยกสำหรับลูกค้า -->
+                                <button @click="openCustomerDisplay" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center transition shadow-sm border border-indigo-200">
+                                    🖥️ เปิดจอฝั่งลูกค้า
+                                </button>
+                            </h3>
+                            <div class="space-y-3">
+                                <select v-model="bill.type" class="w-full border rounded-lg p-3 bg-gray-50"><option value="ใบเสร็จรับเงิน">🧾 ใบเสร็จรับเงิน</option><option value="ใบส่งของ">📦 ใบส่งของ</option></select>
+                                <input v-model="bill.customerName" type="text" placeholder="ชื่อลูกค้า" class="w-full border rounded-lg p-3 bg-gray-50">
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm">
+                            <h3 class="font-semibold text-gray-700 mb-2">2. เลือกสินค้าจากคลัง</h3>
+                            <div class="bg-teal-600 p-3 rounded-lg shadow-inner mb-3">
+                                <input ref="barcodeInput" v-model="scannedBarcode" @keyup.enter="handleBarcodeScan" type="text" placeholder="📷 สแกนบาร์โค้ดที่นี่..." class="w-full border-0 rounded p-2 outline-none focus:ring-2 focus:ring-teal-300 font-mono text-center shadow">
+                            </div>
+                            <div class="mb-3"><input v-model="searchQuery" type="text" placeholder="🔍 พิมพ์ชื่อสินค้าเพื่อค้นหา..." class="w-full border rounded-lg p-2 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"></div>
+                            <div class="flex gap-2 overflow-x-auto mb-3 pb-2 hide-scroll" v-if="uniqueCategoriesList.length > 0">
+                                <button @click="selectedCategory = 'ทั้งหมด'" :class="selectedCategory === 'ทั้งหมด' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">ทั้งหมด</button>
+                                <button v-for="cat in uniqueCategoriesList" :key="cat" @click="selectedCategory = cat" :class="selectedCategory === cat ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">{{ cat }}</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                                <div v-for="prod in filteredProducts" :key="prod.id" @click="addProductToBill(prod)" class="border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition active:scale-95 bg-white shadow-sm flex flex-col justify-between items-center text-center relative min-h-[90px]">
+                                    <div v-if="prod.stock <= 0" class="absolute inset-0 bg-gray-100 bg-opacity-70 flex items-center justify-center z-10"><span class="bg-red-500 text-white text-xs px-2 py-1 rounded">หมด</span></div>
+                                    <span class="font-medium text-gray-700 text-sm leading-tight mt-1">{{ prod.name }}</span>
+                                    <div class="flex flex-col items-center mt-1">
+                                        <span class="text-teal-600 text-xs font-bold">{{ prod.price.toLocaleString() }} ฿</span>
+                                        <span v-if="prod.wholesaleQty > 0" class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded mt-1 border border-purple-100 text-center w-full">ทุกๆ {{ prod.wholesaleQty }}ชิ้น<br>เหลือชิ้นละ {{ prod.wholesalePrice }}฿</span>
+                                    </div>
                                 </div>
-                            </td>
-                            <td class="p-3 text-center flex justify-center gap-1">
-                                <button @click="editProductFromTable(prod)" class="text-blue-600 hover:text-blue-800 font-bold bg-blue-50 px-3 py-1 rounded shadow-sm transition">✏️</button>
-                                <button @click="deleteProduct(prod.id)" class="text-red-500 hover:text-red-700 font-bold bg-red-50 px-3 py-1 rounded shadow-sm transition">🗑️</button>
-                            </td>
-                        </tr>
-                        <tr v-if="filteredInventory.length === 0"><td colspan="8" class="p-8 text-center text-gray-400 bg-gray-50 border-dashed border-2">ไม่พบสินค้าในหมวดหมู่นี้</td></tr>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm">
+                            <h3 class="font-semibold text-gray-700 mb-2">3. พิมพ์รายการนอกคลัง (ไม่ตัดสต็อก)</h3>
+                            <div class="flex flex-col gap-2">
+                                <input v-model="manualItem.name" type="text" placeholder="ชื่อรายการ เช่น ค่าส่ง, บริการซ่อม" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                <div class="flex gap-2">
+                                    <input v-model.number="manualItem.price" type="number" placeholder="ราคา (฿)" step="any" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                    <input v-model.number="manualItem.qty" type="number" placeholder="จำนวน" step="any" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                </div>
+                                <button @click="addManualItem" class="w-full bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 font-medium text-sm transition mt-1">+ เพิ่มรายการนอกคลัง</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm">
+                            <h3 class="font-semibold text-gray-700 mb-2">4. ส่วนลดท้ายบิล (ถ้ามี)</h3>
+                            <div class="flex flex-col md:flex-row gap-3">
+                                <div class="md:w-1/3">
+                                    <label class="text-xs text-gray-500 font-bold mb-1 block">ส่วนลดรวม (฿)</label>
+                                    <input v-model.number="bill.discountAmount" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-red-400 bg-red-50 text-red-600 font-bold">
+                                </div>
+                                <div class="md:w-2/3">
+                                    <label class="text-xs text-gray-500 font-bold mb-1 block">หมายเหตุส่วนลด</label>
+                                    <input v-model="bill.discountNote" type="text" placeholder="เช่น ลูกค้าเก่า, โปรโมชั่น..." class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-red-400 bg-gray-50 text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-400">
+                            <h3 class="font-semibold text-gray-700 mb-3">5. คำนวณเงินรับ / เงินทอน</h3>
+                            <div class="flex flex-col gap-3">
+                                <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border">
+                                    <span class="text-sm font-medium text-gray-600">รวมเป็นเงิน:</span>
+                                    <span class="text-lg font-bold text-gray-600">{{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                                </div>
+                                
+                                <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100" v-if="bill.discountAmount > 0">
+                                    <span class="text-sm font-medium text-red-600">หักส่วนลด:</span>
+                                    <span class="text-lg font-bold text-red-600">-{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                                </div>
+
+                                <div class="flex justify-between items-center bg-teal-50 p-3 rounded-lg border border-teal-200">
+                                    <span class="text-sm font-bold text-teal-800">ยอดรวมสุทธิ:</span>
+                                    <span class="text-xl font-bold text-teal-600">{{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                                </div>
+
+                                <div class="flex items-center gap-2 mt-2">
+                                    <label class="text-sm font-medium text-gray-700 w-20">รับเงินมา:</label>
+                                    <input v-model.number="bill.receivedAmount" type="number" placeholder="ระบุจำนวนเงิน (฿)" class="flex-1 border rounded-lg p-3 text-lg font-bold text-right focus:outline-none focus:ring-2 focus:ring-green-400 bg-green-50">
+                                </div>
+                                <div class="flex justify-between items-center bg-gray-800 p-3 rounded-lg text-white shadow-inner" v-if="bill.receivedAmount > 0">
+                                    <span class="text-sm font-bold">เงินทอน:</span>
+                                    <span class="text-2xl font-bold" :class="bill.receivedAmount < totalAmount ? 'text-red-400' : 'text-green-400'">
+                                        {{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- แยกปุ่มบันทึก และ ปุ่มพิมพ์ -->
+                        <div class="flex gap-3 mt-4">
+                            <button @click="saveBill(false)" class="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-blue-600 transition">
+                                💾 บันทึกรายการ
+                            </button>
+                            <button @click="saveBill(true)" class="flex-1 bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">
+                                🖨️ บันทึก & สั่งพิมพ์
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- แผงขวา: พรีวิวใบเสร็จ -->
+                    <div class="lg:col-span-7" :class="printTarget === 'create' ? 'print-area' : 'no-print'">
+                        <!-- โหมด A4 -->
+                        <div v-if="shop.paperSize === 'a4'" class="bg-white p-8 md:p-12 rounded-xl shadow-lg border relative min-h-[600px]">
+                            <div class="flex justify-between items-start mb-8 border-b-2 pb-6">
+                                <div><h2 class="text-2xl font-bold text-gray-800">{{ shop.name || 'ชื่อร้านของคุณ' }}</h2><p class="text-sm text-gray-500 mt-2 whitespace-pre-line">{{ shop.address }}</p></div>
+                                <div class="text-right"><h1 class="text-3xl font-bold text-teal-600">{{ bill.type }}</h1><p class="text-sm text-gray-500 mt-2">วันที่: {{ currentDate }}</p><p class="text-sm text-gray-500">เลขที่: INV-{{ billNumber }}</p></div>
+                            </div>
+                            <div class="mb-6"><p class="text-sm font-semibold mb-1">ลูกค้า: <span class="text-lg font-normal">{{ bill.customerName || 'ทั่วไป' }}</span></p></div>
+                            <table class="w-full text-left mb-6">
+                                <thead><tr class="border-b-2 border-gray-800 text-gray-700"><th class="py-3 font-semibold">รายการ</th><th class="py-3 font-semibold text-center w-32">จำนวน</th><th class="py-3 font-semibold text-right w-28">ราคา</th><th class="py-3 font-semibold text-right w-32">รวมเงิน</th><th class="py-3 no-print"></th></tr></thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in bill.items" :key="index" class="border-b">
+                                        <td class="py-3 font-medium">
+                                            {{ item.name }}
+                                            <span v-if="!item.id" class="text-[10px] text-orange-500 ml-2 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
+                                            <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(จัดเซ็ต {{ item.wholesaleQty }} ชิ้น)</span>
+                                        </td>
+                                        <td class="py-3 text-center no-print">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <button @click="decreaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">-</button>
+                                                <input v-model.number="item.qty" @change="validateQty(index)" type="number" step="any" min="0.01" class="w-14 text-center border border-gray-300 rounded-md py-1 px-1 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400">
+                                                <button @click="increaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-center print:table-cell hidden">{{ item.qty }}</td>
+                                        <td class="py-3 text-right">
+                                            <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-xs text-gray-400 line-through mr-1 no-print">{{ item.originalPrice }}</span>
+                                            {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}
+                                            <div v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 font-bold mt-1">
+                                                (ลดเซ็ตละ {{ Number(((item.originalPrice * item.wholesaleQty) - (item.wholesalePrice * item.wholesaleQty)).toFixed(2)) }}฿)
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-right font-medium text-teal-700">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
+                                        <td class="py-3 text-center no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold text-sm">ลบ</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="flex justify-end mb-8">
+                                <div class="w-80 bg-teal-50 p-5 rounded-xl border border-teal-100">
+                                    <div class="flex justify-between font-medium text-lg text-gray-600 mb-1" v-if="bill.discountAmount > 0">
+                                        <span>รวมเป็นเงิน:</span><span>{{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                                    </div>
+                                    <div class="flex justify-between font-medium text-lg text-red-500 mb-2 pb-2 border-b border-red-200" v-if="bill.discountAmount > 0">
+                                        <div>ส่วนลด: <span class="text-xs text-gray-500 block" v-if="bill.discountNote">({{ bill.discountNote }})</span></div>
+                                        <span>-{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                                    </div>
+
+                                    <div class="flex justify-between font-bold text-xl text-gray-700 mb-2"><span>ยอดรวมสุทธิ:</span><span>{{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
+                                    <div v-if="bill.receivedAmount > 0" class="flex justify-between text-gray-600 mb-2 font-medium"><span>รับเงินมา:</span><span>{{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
+                                    <div v-if="bill.receivedAmount > 0" class="flex justify-between font-bold text-2xl text-green-700 pt-2 border-t border-teal-200"><span>เงินทอน:</span><span>{{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- โหมด Slip -->
+                        <div v-if="shop.paperSize === 'slip'" class="bg-white p-4 shadow-lg border slip-preview" :class="{ 'slip-format': true }">
+                            <div class="text-center mb-3"><h2 class="text-xl font-bold">{{ shop.name || 'ชื่อร้านของคุณ' }}</h2><p class="text-xs mt-1 whitespace-pre-line text-gray-600">{{ shop.address }}</p></div>
+                            <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3"><h1 class="text-lg font-bold">{{ bill.type }}</h1><p class="text-xs mt-1">วันที่: {{ currentDate }}</p><p class="text-xs">เลขที่: INV-{{ billNumber }}</p></div>
+                            <div class="mb-3 text-sm" v-if="bill.customerName"><p>ลูกค้า: {{ bill.customerName }}</p></div>
+                            <table class="w-full text-sm mb-3">
+                                <thead><tr class="border-b border-gray-400"><th class="py-1 text-left w-2/5">รายการ</th><th class="py-1 text-center w-24">จน.</th><th class="py-1 text-right w-16">รวม</th><th class="py-1 no-print"></th></tr></thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in bill.items" :key="index" class="border-b border-gray-100">
+                                        <td class="py-2 pr-1 align-middle">
+                                            {{ item.name }}
+                                            <span v-if="!item.id" class="text-[10px] text-orange-500 ml-1 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
+                                            <div class="text-xs text-gray-500">
+                                                @{{ item.originalPrice !== undefined ? item.originalPrice : item.price }}
+                                                <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-1 block">
+                                                    (เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="py-2 text-center align-middle">
+                                            <span class="print:inline hidden">{{ item.qty }}</span>
+                                            <div class="flex items-center justify-center gap-1 no-print">
+                                                <button @click="decreaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">-</button>
+                                                <input v-model.number="item.qty" @change="validateQty(index)" type="number" step="any" class="w-10 text-center border rounded py-0.5 px-0 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-teal-400">
+                                                <button @click="increaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="py-2 text-right align-middle">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
+                                        <td class="py-2 text-center align-middle no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold ml-1">x</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2" v-if="bill.discountAmount > 0">รวมเป็นเงิน: {{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                            <div class="text-right text-sm text-red-600" v-if="bill.discountAmount > 0">
+                                ส่วนลด: -{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
+                                <div class="text-[10px] text-gray-500" v-if="bill.discountNote">({{ bill.discountNote }})</div>
+                            </div>
+
+                            <div class="text-right font-bold text-lg" :class="bill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                            <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                            <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                            <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= พิมพ์รายงาน ================= -->
+            <div v-if="printTarget === 'report'" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
+                <h2 :class="shop.paperSize === 'slip' ? 'text-lg text-center' : 'text-3xl text-center'" class="font-bold mb-2">{{ shop.name || 'ชื่อร้าน' }}</h2>
+                <h3 :class="shop.paperSize === 'slip' ? 'text-sm' : 'text-xl'" class="font-medium text-center text-gray-600 mb-4">รายงานยอดขายรายวัน</h3>
+                <p :class="shop.paperSize === 'slip' ? 'text-xs' : 'text-lg'">ประจำวันที่: <strong>{{ formattedSelectedDate }}</strong></p>
+                <p :class="shop.paperSize === 'slip' ? 'text-xs border-b pb-2' : 'text-lg border-b-2 pb-2'">บิลทั้งหมด: {{ selectedDateBills.length }} ใบ</p>
+                <p :class="shop.paperSize === 'slip' ? 'text-xs pb-2' : 'text-lg pb-4'" class="mb-4">
+                    <span class="font-bold">ยอดขาย: {{ selectedDateTotal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span> | 
+                    <span class="font-bold text-green-700">กำไร: {{ selectedDateProfit.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                </p>
+                <table class="w-full text-left border-collapse" :class="shop.paperSize === 'slip' ? 'text-xs' : ''">
+                    <thead><tr class="bg-gray-100 text-gray-700 border-b border-gray-800"><th class="p-2">บิล / ลูกค้า</th><th class="p-2 text-right">ยอดรวม</th></tr></thead>
+                    <tbody>
+                        <tr v-for="b in selectedDateBills" :key="b.id" class="border-b"><td class="p-2">INV-{{ b.billNumber }}<br><span class="text-gray-500">{{ b.customerName || 'ทั่วไป' }}</span></td><td class="p-2 text-right font-medium text-teal-700">{{ b.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td></tr>
                     </tbody>
                 </table>
             </div>
-        </div>
 
-        <!-- ================= ตั้งค่า ================= -->
-        <div v-show="currentTab === 'settings'" class="no-print bg-white p-6 rounded-xl shadow-sm">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">⚙️ ตั้งค่าระบบและร้านค้า</h2>
-            <div class="grid grid-cols-1 gap-4 max-w-2xl">
-                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <label class="block text-sm text-blue-800 font-bold mb-1">👤 ชื่อพนักงาน / ชื่อประจำเครื่อง (ตั้งค่าเฉพาะเครื่องนี้)</label>
-                    <input v-model="localDeviceName" type="text" placeholder="เช่น แคชเชียร์ 1, กิตติพัฒน์..." class="w-full border rounded-lg p-3 bg-white font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <p class="text-xs text-gray-500 mt-2">* ชื่อนี้จะถูกบันทึกใน <strong>ประวัติกิจกรรม</strong> เพื่อให้รู้ว่าใคร/เครื่องไหนเป็นคนทำรายการ</p>
+            <!-- ================= พิมพ์บิลย้อนหลัง ================= -->
+            <div v-if="printTarget === 'history' && viewingBill" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
+                <div class="text-center mb-3"><h2 :class="shop.paperSize === 'slip' ? 'text-xl' : 'text-3xl'" class="font-bold">{{ shop.name }}</h2></div>
+                <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3">
+                    <h1 :class="shop.paperSize === 'slip' ? 'text-lg' : 'text-2xl'" class="font-bold">{{ viewingBill.type }} <span class="text-xs">(พิมพ์ซ้ำ)</span></h1>
+                    <p class="text-sm mt-1">วันที่: {{ new Date(viewingBill.timestamp).toLocaleDateString('th-TH') }}</p><p class="text-sm">เลขที่: INV-{{ viewingBill.billNumber }}</p>
                 </div>
-                <hr class="my-2">
-                <div>
-                    <label class="block text-sm text-gray-500 mb-1">รูปแบบกระดาษพิมพ์ใบเสร็จ</label>
-                    <select v-model="shop.paperSize" class="w-full border rounded-lg p-3 bg-gray-50 font-medium text-teal-700 focus:outline-none">
-                        <option value="a4">📄 ขนาด A4 (เครื่องปริ้นทั่วไป)</option>
-                        <option value="slip">🧾 ขนาด Slip 57x40mm (เครื่องปริ้นความร้อน)</option>
-                    </select>
+                <div class="mb-3 text-sm" v-if="viewingBill.customerName"><p>ลูกค้า: {{ viewingBill.customerName }}</p></div>
+                <table class="w-full text-sm mb-3">
+                    <thead><tr class="border-b border-gray-400"><th class="py-1 text-left">รายการ</th><th class="py-1 text-center w-10">จน.</th><th class="py-1 text-right w-16">รวม</th></tr></thead>
+                    <tbody>
+                        <tr v-for="(item, index) in viewingBill.items" :key="index" class="border-b border-gray-100">
+                            <td class="py-2">
+                                {{ item.name }}
+                                <div class="text-[10px] text-gray-500" v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0">(เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})</div>
+                            </td>
+                            <td class="py-2 text-center">{{ item.qty }}</td><td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2">รวมเป็นเงิน: {{ (viewingBill.subTotal || (viewingBill.total + viewingBill.discountAmount)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm text-red-600">
+                    ส่วนลด: -{{ viewingBill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
+                    <div class="text-[10px] text-gray-500" v-if="viewingBill.discountNote">({{ viewingBill.discountNote }})</div>
                 </div>
-                <input v-model="shop.name" type="text" placeholder="ชื่อร้านค้า" class="w-full border rounded-lg p-3 bg-gray-50">
-                <textarea v-model="shop.address" rows="3" placeholder="ที่อยู่ติดต่อ" class="w-full border rounded-lg p-3 bg-gray-50"></textarea>
-                <button @click="saveShopData" class="bg-teal-500 text-white px-6 py-3 rounded-lg font-semibold w-full md:w-auto hover:bg-teal-600 shadow-md">💾 บันทึกตั้งค่า</button>
+
+                <div class="text-right font-bold text-lg" :class="viewingBill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ viewingBill.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                
+                <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
+                <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
             </div>
         </div>
 
-        <!-- ================= สร้างบิล (POS) ================= -->
-        <div v-show="currentTab === 'create'">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- แผงซ้าย: เลือกสินค้า -->
-                <div class="no-print lg:col-span-5 space-y-4">
+        <!-- ================= จอแสดงผลฝั่งลูกค้า (Customer Display) ================= -->
+        <div v-if="isCustomerDisplay" class="h-screen bg-gray-100 flex flex-col p-4 md:p-8 no-print">
+            <div class="bg-teal-600 text-white p-6 rounded-t-2xl shadow-lg flex justify-between items-center">
+                <h1 class="text-3xl font-bold">ยินดีต้อนรับสู่ {{ shop.name || 'ร้านของเรา' }}</h1>
+                <p class="text-xl font-medium">{{ currentDate }}</p>
+            </div>
+            
+            <div class="flex-1 flex flex-col lg:flex-row gap-6 mt-6 overflow-hidden">
+                <!-- ฝั่งซ้าย: รายการสินค้า -->
+                <div class="flex-[2] bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden border border-gray-200">
+                    <div class="p-5 bg-gray-100 border-b-2 border-gray-200 font-bold text-2xl flex text-gray-700">
+                        <div class="flex-[3]">รายการสินค้า</div>
+                        <div class="flex-1 text-center">จำนวน</div>
+                        <div class="flex-1 text-right">ราคา</div>
+                        <div class="flex-1 text-right">รวม</div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                        <div v-if="!customerData.items || customerData.items.length === 0" class="h-full flex items-center justify-center text-gray-400 text-3xl font-medium">
+                            -- ยังไม่มีรายการสินค้า --
+                        </div>
+                        <div v-for="(item, idx) in customerData.items" :key="idx" class="flex text-2xl text-gray-800 border-b border-gray-100 pb-4 items-center">
+                            <div class="flex-[3] pr-2">
+                                {{ item.name }}
+                                <div v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-sm text-purple-500 mt-1">
+                                    (จัดเซ็ตโปรโมชั่นลดราคา)
+                                </div>
+                            </div>
+                            <div class="flex-1 text-center">{{ item.qty }}</div>
+                            <div class="flex-1 text-right">
+                                <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-base text-gray-400 line-through mr-2">{{ item.originalPrice }}</span>
+                                {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}
+                            </div>
+                            <div class="flex-1 text-right font-bold text-teal-700">
+                                {{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ฝั่งขวา: สรุปยอดเงิน -->
+                <div class="flex-1 bg-white rounded-2xl shadow-lg flex flex-col justify-between p-8 border border-gray-200">
+                    <div class="space-y-8">
+                        <div class="flex justify-between items-center text-3xl text-gray-600 font-medium">
+                            <span>รวมเป็นเงิน</span>
+                            <span>{{ (customerData.subTotal || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                        </div>
+                        <div v-if="customerData.discount > 0" class="flex justify-between items-center text-3xl text-red-500 font-medium">
+                            <span>ส่วนลด</span>
+                            <span>-{{ customerData.discount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                        </div>
+                        <div class="pt-8 border-t-4 border-gray-100 flex justify-between items-center text-5xl font-bold text-teal-600">
+                            <span>ยอดสุทธิ</span>
+                            <span>{{ (customerData.total || 0).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
+                        </div>
+                    </div>
                     
-                    <div class="bg-white p-5 rounded-xl shadow-sm">
-                        <h3 class="font-semibold text-gray-700 mb-3 flex justify-between items-center">
-                            1. ข้อมูลลูกค้า <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-1 rounded">{{ shop.paperSize === 'slip' ? '🧾 สลิป 57mm' : '📄 A4' }}</span>
-                        </h3>
-                        <div class="space-y-3">
-                            <select v-model="bill.type" class="w-full border rounded-lg p-3 bg-gray-50"><option value="ใบเสร็จรับเงิน">🧾 ใบเสร็จรับเงิน</option><option value="ใบส่งของ">📦 ใบส่งของ</option></select>
-                            <input v-model="bill.customerName" type="text" placeholder="ชื่อลูกค้า" class="w-full border rounded-lg p-3 bg-gray-50">
+                    <div class="mt-8 bg-gray-50 p-8 rounded-2xl border-2 border-gray-200 space-y-8">
+                        <div class="flex justify-between items-center text-4xl">
+                            <span class="text-gray-600 font-medium">รับเงินมา</span>
+                            <span class="font-bold text-gray-800">{{ customerData.received > 0 ? customerData.received.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' ฿' : '-' }}</span>
                         </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm">
-                        <h3 class="font-semibold text-gray-700 mb-2">2. เลือกสินค้าจากคลัง</h3>
-                        <div class="bg-teal-600 p-3 rounded-lg shadow-inner mb-3">
-                            <input ref="barcodeInput" v-model="scannedBarcode" @keyup.enter="handleBarcodeScan" type="text" placeholder="📷 สแกนบาร์โค้ดที่นี่..." class="w-full border-0 rounded p-2 outline-none focus:ring-2 focus:ring-teal-300 font-mono text-center shadow">
+                        <div class="pt-8 border-t-4 border-dashed border-gray-300 flex justify-between items-center text-5xl">
+                            <span class="text-gray-600 font-bold">เงินทอน</span>
+                            <span class="font-bold" :class="customerData.change > 0 ? 'text-green-500' : 'text-gray-800'">{{ customerData.change > 0 ? customerData.change.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) + ' ฿' : '-' }}</span>
                         </div>
-                        <div class="mb-3"><input v-model="searchQuery" type="text" placeholder="🔍 พิมพ์ชื่อสินค้าเพื่อค้นหา..." class="w-full border rounded-lg p-2 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"></div>
-                        <div class="flex gap-2 overflow-x-auto mb-3 pb-2 hide-scroll" v-if="uniqueCategoriesList.length > 0">
-                            <button @click="selectedCategory = 'ทั้งหมด'" :class="selectedCategory === 'ทั้งหมด' ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">ทั้งหมด</button>
-                            <button v-for="cat in uniqueCategoriesList" :key="cat" @click="selectedCategory = cat" :class="selectedCategory === cat ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">{{ cat }}</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                            <div v-for="prod in filteredProducts" :key="prod.id" @click="addProductToBill(prod)" class="border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition active:scale-95 bg-white shadow-sm flex flex-col justify-between items-center text-center relative min-h-[90px]">
-                                <div v-if="prod.stock <= 0" class="absolute inset-0 bg-gray-100 bg-opacity-70 flex items-center justify-center z-10"><span class="bg-red-500 text-white text-xs px-2 py-1 rounded">หมด</span></div>
-                                <span class="font-medium text-gray-700 text-sm leading-tight mt-1">{{ prod.name }}</span>
-                                <div class="flex flex-col items-center mt-1">
-                                    <span class="text-teal-600 text-xs font-bold">{{ prod.price.toLocaleString() }} ฿</span>
-                                    <span v-if="prod.wholesaleQty > 0" class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded mt-1 border border-purple-100 text-center w-full">ทุกๆ {{ prod.wholesaleQty }}ชิ้น<br>เหลือชิ้นละ {{ prod.wholesalePrice }}฿</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm">
-                        <h3 class="font-semibold text-gray-700 mb-2">3. พิมพ์รายการนอกคลัง (ไม่ตัดสต็อก)</h3>
-                        <div class="flex flex-col gap-2">
-                            <input v-model="manualItem.name" type="text" placeholder="ชื่อรายการ เช่น ค่าส่ง, บริการซ่อม" class="w-full border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                            <div class="flex gap-2">
-                                <input v-model.number="manualItem.price" type="number" placeholder="ราคา (฿)" step="any" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                                <input v-model.number="manualItem.qty" type="number" placeholder="จำนวน" step="any" class="w-1/2 border rounded-lg p-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-400">
-                            </div>
-                            <button @click="addManualItem" class="w-full bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 font-medium text-sm transition mt-1">+ เพิ่มรายการนอกคลัง</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm">
-                        <h3 class="font-semibold text-gray-700 mb-2">4. ส่วนลดท้ายบิล (ถ้ามี)</h3>
-                        <div class="flex flex-col md:flex-row gap-3">
-                            <div class="md:w-1/3">
-                                <label class="text-xs text-gray-500 font-bold mb-1 block">ส่วนลดรวม (฿)</label>
-                                <input v-model.number="bill.discountAmount" type="number" placeholder="0" class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-red-400 bg-red-50 text-red-600 font-bold">
-                            </div>
-                            <div class="md:w-2/3">
-                                <label class="text-xs text-gray-500 font-bold mb-1 block">หมายเหตุส่วนลด</label>
-                                <input v-model="bill.discountNote" type="text" placeholder="เช่น ลูกค้าเก่า, โปรโมชั่น..." class="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-red-400 bg-gray-50 text-sm">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-400">
-                        <h3 class="font-semibold text-gray-700 mb-3">5. คำนวณเงินรับ / เงินทอน</h3>
-                        <div class="flex flex-col gap-3">
-                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border">
-                                <span class="text-sm font-medium text-gray-600">รวมเป็นเงิน:</span>
-                                <span class="text-lg font-bold text-gray-600">{{ subTotalAmount.toLocaleString() }} ฿</span>
-                            </div>
-                            
-                            <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100" v-if="bill.discountAmount > 0">
-                                <span class="text-sm font-medium text-red-600">หักส่วนลด:</span>
-                                <span class="text-lg font-bold text-red-600">-{{ bill.discountAmount.toLocaleString() }} ฿</span>
-                            </div>
-
-                            <div class="flex justify-between items-center bg-teal-50 p-3 rounded-lg border border-teal-200">
-                                <span class="text-sm font-bold text-teal-800">ยอดรวมสุทธิ:</span>
-                                <span class="text-xl font-bold text-teal-600">{{ totalAmount.toLocaleString() }} ฿</span>
-                            </div>
-
-                            <div class="flex items-center gap-2 mt-2">
-                                <label class="text-sm font-medium text-gray-700 w-20">รับเงินมา:</label>
-                                <input v-model.number="bill.receivedAmount" type="number" placeholder="ระบุจำนวนเงิน (฿)" class="flex-1 border rounded-lg p-3 text-lg font-bold text-right focus:outline-none focus:ring-2 focus:ring-green-400 bg-green-50">
-                            </div>
-                            <div class="flex justify-between items-center bg-gray-800 p-3 rounded-lg text-white shadow-inner" v-if="bill.receivedAmount > 0">
-                                <span class="text-sm font-bold">เงินทอน:</span>
-                                <span class="text-2xl font-bold" :class="bill.receivedAmount < totalAmount ? 'text-red-400' : 'text-green-400'">
-                                    {{ (bill.receivedAmount - totalAmount).toLocaleString() }} ฿
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- แยกปุ่มบันทึก และ ปุ่มพิมพ์ -->
-                    <div class="flex gap-3 mt-4">
-                        <button @click="saveBill(false)" class="flex-1 bg-blue-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-blue-600 transition">
-                            💾 บันทึกรายการ
-                        </button>
-                        <button @click="saveBill(true)" class="flex-1 bg-teal-500 text-white py-4 rounded-xl font-bold text-lg shadow-md hover:bg-teal-600 transition">
-                            🖨️ บันทึก & สั่งพิมพ์
-                        </button>
-                    </div>
-                </div>
-
-                <!-- แผงขวา: พรีวิวใบเสร็จ -->
-                <div class="lg:col-span-7" :class="printTarget === 'create' ? 'print-area' : 'no-print'">
-                    <!-- โหมด A4 -->
-                    <div v-if="shop.paperSize === 'a4'" class="bg-white p-8 md:p-12 rounded-xl shadow-lg border relative min-h-[600px]">
-                        <div class="flex justify-between items-start mb-8 border-b-2 pb-6">
-                            <div><h2 class="text-2xl font-bold text-gray-800">{{ shop.name || 'ชื่อร้านของคุณ' }}</h2><p class="text-sm text-gray-500 mt-2 whitespace-pre-line">{{ shop.address }}</p></div>
-                            <div class="text-right"><h1 class="text-3xl font-bold text-teal-600">{{ bill.type }}</h1><p class="text-sm text-gray-500 mt-2">วันที่: {{ currentDate }}</p><p class="text-sm text-gray-500">เลขที่: INV-{{ billNumber }}</p></div>
-                        </div>
-                        <div class="mb-6"><p class="text-sm font-semibold mb-1">ลูกค้า: <span class="text-lg font-normal">{{ bill.customerName || 'ทั่วไป' }}</span></p></div>
-                        <table class="w-full text-left mb-6">
-                            <thead><tr class="border-b-2 border-gray-800 text-gray-700"><th class="py-3 font-semibold">รายการ</th><th class="py-3 font-semibold text-center w-32">จำนวน</th><th class="py-3 font-semibold text-right w-28">ราคา</th><th class="py-3 font-semibold text-right w-32">รวมเงิน</th><th class="py-3 no-print"></th></tr></thead>
-                            <tbody>
-                                <tr v-for="(item, index) in bill.items" :key="index" class="border-b">
-                                    <td class="py-3 font-medium">
-                                        {{ item.name }}
-                                        <span v-if="!item.id" class="text-[10px] text-orange-500 ml-2 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
-                                        <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-2 border border-purple-300 rounded px-1">(จัดเซ็ต {{ item.wholesaleQty }})</span>
-                                    </td>
-                                    <td class="py-3 text-center no-print">
-                                        <div class="flex items-center justify-center gap-1">
-                                            <button @click="decreaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">-</button>
-                                            <input v-model.number="item.qty" @change="validateQty(index)" type="number" step="any" min="0.01" class="w-14 text-center border border-gray-300 rounded-md py-1 px-1 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400">
-                                            <button @click="increaseQty(index)" class="bg-gray-200 w-8 h-8 rounded-full font-bold hover:bg-gray-300 transition">+</button>
-                                        </div>
-                                    </td>
-                                    <td class="py-3 text-center print:table-cell hidden">{{ item.qty }}</td>
-                                    <td class="py-3 text-right">
-                                        <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-xs text-gray-400 line-through mr-1 no-print">{{ item.originalPrice }}</span>
-                                        {{ (item.originalPrice !== undefined ? item.originalPrice : item.price).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}
-                                        <div v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 font-bold mt-1">
-                                            (ลดเซ็ตละ {{ Number(((item.originalPrice * item.wholesaleQty) - (item.wholesalePrice * item.wholesaleQty)).toFixed(2)) }}฿)
-                                        </div>
-                                    </td>
-                                    <td class="py-3 text-right font-medium text-teal-700">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
-                                    <td class="py-3 text-center no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold text-sm">ลบ</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="flex justify-end mb-8">
-                            <div class="w-80 bg-teal-50 p-5 rounded-xl border border-teal-100">
-                                <div class="flex justify-between font-medium text-lg text-gray-600 mb-1" v-if="bill.discountAmount > 0">
-                                    <span>รวมเป็นเงิน:</span><span>{{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
-                                </div>
-                                <div class="flex justify-between font-medium text-lg text-red-500 mb-2 pb-2 border-b border-red-200" v-if="bill.discountAmount > 0">
-                                    <div>ส่วนลด: <span class="text-xs text-gray-500 block" v-if="bill.discountNote">({{ bill.discountNote }})</span></div>
-                                    <span>-{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
-                                </div>
-
-                                <div class="flex justify-between font-bold text-xl text-gray-700 mb-2"><span>ยอดรวมสุทธิ:</span><span>{{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
-                                <div v-if="bill.receivedAmount > 0" class="flex justify-between text-gray-600 mb-2 font-medium"><span>รับเงินมา:</span><span>{{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
-                                <div v-if="bill.receivedAmount > 0" class="flex justify-between font-bold text-2xl text-green-700 pt-2 border-t border-teal-200"><span>เงินทอน:</span><span>{{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- โหมด Slip -->
-                    <div v-if="shop.paperSize === 'slip'" class="bg-white p-4 shadow-lg border slip-preview" :class="{ 'slip-format': true }">
-                        <div class="text-center mb-3"><h2 class="text-xl font-bold">{{ shop.name || 'ชื่อร้านของคุณ' }}</h2><p class="text-xs mt-1 whitespace-pre-line text-gray-600">{{ shop.address }}</p></div>
-                        <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3"><h1 class="text-lg font-bold">{{ bill.type }}</h1><p class="text-xs mt-1">วันที่: {{ currentDate }}</p><p class="text-xs">เลขที่: INV-{{ billNumber }}</p></div>
-                        <div class="mb-3 text-sm" v-if="bill.customerName"><p>ลูกค้า: {{ bill.customerName }}</p></div>
-                        <table class="w-full text-sm mb-3">
-                            <thead><tr class="border-b border-gray-400"><th class="py-1 text-left w-2/5">รายการ</th><th class="py-1 text-center w-24">จน.</th><th class="py-1 text-right w-16">รวม</th><th class="py-1 no-print"></th></tr></thead>
-                            <tbody>
-                                <tr v-for="(item, index) in bill.items" :key="index" class="border-b border-gray-100">
-                                    <td class="py-2 pr-1 align-middle">
-                                        {{ item.name }}
-                                        <span v-if="!item.id" class="text-[10px] text-orange-500 ml-1 border border-orange-300 rounded px-1 no-print">นอกคลัง</span>
-                                        <div class="text-xs text-gray-500">
-                                            @{{ item.originalPrice !== undefined ? item.originalPrice : item.price }}
-                                            <span v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0" class="text-[10px] text-purple-600 ml-1 block">
-                                                (เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td class="py-2 text-center align-middle">
-                                        <span class="print:inline hidden">{{ item.qty }}</span>
-                                        <div class="flex items-center justify-center gap-1 no-print">
-                                            <button @click="decreaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">-</button>
-                                            <input v-model.number="item.qty" @change="validateQty(index)" type="number" step="any" class="w-10 text-center border rounded py-0.5 px-0 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-teal-400">
-                                            <button @click="increaseQty(index)" class="bg-gray-200 w-6 h-6 rounded flex items-center justify-center font-bold">+</button>
-                                        </div>
-                                    </td>
-                                    <td class="py-2 text-right align-middle">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
-                                    <td class="py-2 text-center align-middle no-print"><button @click="bill.items.splice(index, 1)" class="text-red-400 hover:text-red-600 font-bold ml-1">x</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <div class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2" v-if="bill.discountAmount > 0">รวมเป็นเงิน: {{ subTotalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-                        <div class="text-right text-sm text-red-600" v-if="bill.discountAmount > 0">
-                            ส่วนลด: -{{ bill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
-                            <div class="text-[10px] text-gray-500" v-if="bill.discountNote">({{ bill.discountNote }})</div>
-                        </div>
-
-                        <div class="text-right font-bold text-lg" :class="bill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ totalAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-                        <div v-if="bill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ bill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-                        <div v-if="bill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ (bill.receivedAmount - totalAmount).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-                        <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- ================= พิมพ์รายงาน ================= -->
-        <div v-if="printTarget === 'report'" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
-            <h2 :class="shop.paperSize === 'slip' ? 'text-lg text-center' : 'text-3xl text-center'" class="font-bold mb-2">{{ shop.name || 'ชื่อร้าน' }}</h2>
-            <h3 :class="shop.paperSize === 'slip' ? 'text-sm' : 'text-xl'" class="font-medium text-center text-gray-600 mb-4">รายงานยอดขายรายวัน</h3>
-            <p :class="shop.paperSize === 'slip' ? 'text-xs' : 'text-lg'">ประจำวันที่: <strong>{{ formattedSelectedDate }}</strong></p>
-            <p :class="shop.paperSize === 'slip' ? 'text-xs border-b pb-2' : 'text-lg border-b-2 pb-2'">บิลทั้งหมด: {{ selectedDateBills.length }} ใบ</p>
-            <p :class="shop.paperSize === 'slip' ? 'text-xs pb-2' : 'text-lg pb-4'" class="mb-4">
-                <span class="font-bold">ยอดขาย: {{ selectedDateTotal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span> | 
-                <span class="font-bold text-green-700">กำไร: {{ selectedDateProfit.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</span>
-            </p>
-            <table class="w-full text-left border-collapse" :class="shop.paperSize === 'slip' ? 'text-xs' : ''">
-                <thead><tr class="bg-gray-100 text-gray-700 border-b border-gray-800"><th class="p-2">บิล / ลูกค้า</th><th class="p-2 text-right">ยอดรวม</th></tr></thead>
-                <tbody>
-                    <tr v-for="b in selectedDateBills" :key="b.id" class="border-b"><td class="p-2">INV-{{ b.billNumber }}<br><span class="text-gray-500">{{ b.customerName || 'ทั่วไป' }}</span></td><td class="p-2 text-right font-medium text-teal-700">{{ b.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- ================= พิมพ์บิลย้อนหลัง ================= -->
-        <div v-if="printTarget === 'history' && viewingBill" class="print-only" :class="{ 'slip-format': shop.paperSize === 'slip', 'slip-preview': shop.paperSize === 'slip' }">
-            <div class="text-center mb-3"><h2 :class="shop.paperSize === 'slip' ? 'text-xl' : 'text-3xl'" class="font-bold">{{ shop.name }}</h2></div>
-            <div class="text-center mb-3 border-b border-dashed border-gray-400 pb-3">
-                <h1 :class="shop.paperSize === 'slip' ? 'text-lg' : 'text-2xl'" class="font-bold">{{ viewingBill.type }} <span class="text-xs">(พิมพ์ซ้ำ)</span></h1>
-                <p class="text-sm mt-1">วันที่: {{ new Date(viewingBill.timestamp).toLocaleDateString('th-TH') }}</p><p class="text-sm">เลขที่: INV-{{ viewingBill.billNumber }}</p>
-            </div>
-            <div class="mb-3 text-sm" v-if="viewingBill.customerName"><p>ลูกค้า: {{ viewingBill.customerName }}</p></div>
-            <table class="w-full text-sm mb-3">
-                <thead><tr class="border-b border-gray-400"><th class="py-1 text-left">รายการ</th><th class="py-1 text-center w-10">จน.</th><th class="py-1 text-right w-16">รวม</th></tr></thead>
-                <tbody>
-                    <tr v-for="(item, index) in viewingBill.items" :key="index" class="border-b border-gray-100">
-                        <td class="py-2">
-                            {{ item.name }}
-                            <div class="text-[10px] text-gray-500" v-if="item.wholesaleQty > 0 && Math.floor(item.qty / item.wholesaleQty) > 0">(เซ็ต {{ item.wholesaleQty }}x{{ item.wholesalePrice }})</div>
-                        </td>
-                        <td class="py-2 text-center">{{ item.qty }}</td><td class="py-2 text-right">{{ (item.lineTotal !== undefined ? item.lineTotal : item.price * item.qty).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm mt-2 border-t border-dashed border-gray-400 pt-2">รวมเป็นเงิน: {{ (viewingBill.subTotal || (viewingBill.total + viewingBill.discountAmount)).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-            <div v-if="viewingBill.discountAmount > 0" class="text-right text-sm text-red-600">
-                ส่วนลด: -{{ viewingBill.discountAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿
-                <div class="text-[10px] text-gray-500" v-if="viewingBill.discountNote">({{ viewingBill.discountNote }})</div>
-            </div>
-
-            <div class="text-right font-bold text-lg" :class="viewingBill.discountAmount > 0 ? 'mt-1 border-t border-dashed border-gray-400 pt-1' : 'mt-2 border-t border-dashed border-gray-400 pt-2'">รวมสุทธิ: {{ viewingBill.total.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-            
-            <div v-if="viewingBill.receivedAmount > 0" class="text-right text-sm mt-1">รับเงิน: {{ viewingBill.receivedAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-            <div v-if="viewingBill.receivedAmount > 0" class="text-right font-bold text-sm mt-1 pb-2 border-b border-dashed border-gray-400">เงินทอน: {{ viewingBill.changeAmount.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2}) }} ฿</div>
-            <div class="text-center text-xs text-gray-500 mt-4">ขอบคุณที่ใช้บริการ</div>
         </div>
     </div>
 
@@ -621,6 +710,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const isStandalone = urlParams.get('view') === 'dashboard';
+        const isCustomer = urlParams.get('view') === 'customer';
 
         createApp({
             data() {
@@ -633,6 +723,7 @@
                     isOnline: navigator.onLine,
                     currentTab: isStandalone ? 'dashboard' : 'create',
                     isStandaloneDashboard: isStandalone,
+                    isCustomerDisplay: isCustomer,
                     
                     shop: { name: '', address: '', paperSize: 'a4' },
                     products: [], bills: [], activityLogs: [],
@@ -645,6 +736,9 @@
                     
                     bill: { type: 'ใบเสร็จรับเงิน', customerName: '', items: [], receivedAmount: null, discountAmount: 0, discountNote: '' },
                     billNumber: Math.floor(Math.random() * 90000) + 10000,
+                    
+                    // ข้อมูลสำหรับจอแสดงผลลูกค้า
+                    customerData: { items: [], subTotal: 0, discount: 0, total: 0, received: 0, change: 0 },
                     
                     selectedDate: `${y}-${m}-${d}`, 
                     selectedCategory: 'ทั้งหมด', 
@@ -739,33 +833,74 @@
                 }
             },
             watch: {
-                bills: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
-                products: { deep: true, handler() { if(this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); } },
-                currentTab(newVal) { if (newVal === 'dashboard') this.$nextTick(() => this.renderChart()); },
-                chartCategory() { if (this.currentTab === 'dashboard') this.$nextTick(() => this.renderChart()); }
+                bills: { deep: true, handler() { if(this.currentTab === 'dashboard' && !this.isCustomerDisplay) this.$nextTick(() => this.renderChart()); } },
+                products: { deep: true, handler() { if(this.currentTab === 'dashboard' && !this.isCustomerDisplay) this.$nextTick(() => this.renderChart()); } },
+                currentTab(newVal) { if (newVal === 'dashboard' && !this.isCustomerDisplay) this.$nextTick(() => this.renderChart()); },
+                chartCategory() { if (this.currentTab === 'dashboard' && !this.isCustomerDisplay) this.$nextTick(() => this.renderChart()); },
+                
+                // คอยจับตาดูการเปลี่ยนแปลงของบิล เพื่อส่งข้อมูลไปจอฝั่งลูกค้าแบบ Real-time
+                bill: {
+                    deep: true,
+                    handler() {
+                        if (!this.isCustomerDisplay) this.syncCustomerDisplay();
+                    }
+                }
             },
             mounted() {
                 window.addEventListener('online', () => this.isOnline = true);
                 window.addEventListener('offline', () => this.isOnline = false);
 
+                // ถ้าเป็นหน้าจอฝั่งลูกค้า ให้คอยรับข้อมูลจาก LocalStorage ทันที
+                if (this.isCustomerDisplay) {
+                    window.addEventListener('storage', (e) => {
+                        if (e.key === 'easybill_customer_sync') {
+                            this.customerData = JSON.parse(e.newValue || '{}');
+                        }
+                    });
+                    const initialData = localStorage.getItem('easybill_customer_sync');
+                    if (initialData) this.customerData = JSON.parse(initialData);
+                }
+
                 onSnapshot(doc(db, "settings", "shopInfo"), (docSnap) => { 
                     if (docSnap.exists()) { this.shop = docSnap.data(); if(!this.shop.paperSize) this.shop.paperSize = 'a4'; } 
                 });
-                onSnapshot(collection(db, "products"), (snapshot) => {
-                    const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() })); this.products = loaded;
-                });
-                onSnapshot(collection(db, "bills"), (snapshot) => {
-                    const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
-                    this.bills = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-                });
-                onSnapshot(collection(db, "logs"), (snapshot) => {
-                    const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
-                    this.activityLogs = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-                });
+                
+                if (!this.isCustomerDisplay) {
+                    onSnapshot(collection(db, "products"), (snapshot) => {
+                        const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() })); this.products = loaded;
+                    });
+                    onSnapshot(collection(db, "bills"), (snapshot) => {
+                        const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+                        this.bills = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    });
+                    onSnapshot(collection(db, "logs"), (snapshot) => {
+                        const loaded = []; snapshot.forEach(d => loaded.push({ id: d.id, ...d.data() }));
+                        this.activityLogs = loaded.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    });
 
-                if (this.currentTab === 'dashboard') { setTimeout(() => this.renderChart(), 1000); }
+                    if (this.currentTab === 'dashboard') { setTimeout(() => this.renderChart(), 1000); }
+                }
             },
             methods: {
+                // ฟังก์ชันอัปเดตข้อมูลไปยังจอฝั่งลูกค้า
+                syncCustomerDisplay() {
+                    const data = {
+                        items: this.bill.items,
+                        subTotal: this.subTotalAmount,
+                        discount: this.bill.discountAmount || 0,
+                        total: this.totalAmount,
+                        received: this.bill.receivedAmount || 0,
+                        change: (this.bill.receivedAmount || 0) > this.totalAmount ? ((this.bill.receivedAmount || 0) - this.totalAmount) : 0
+                    };
+                    localStorage.setItem('easybill_customer_sync', JSON.stringify(data));
+                },
+
+                // ฟังก์ชันเปิดจอแยกฝั่งลูกค้า
+                openCustomerDisplay() {
+                    window.open(window.location.pathname + '?view=customer', 'CustomerDisplay', 'width=1024,height=768,menubar=no,toolbar=no');
+                    this.syncCustomerDisplay(); // ส่งข้อมูลเริ่มต้นไปให้จอลูกค้าทันที
+                },
+
                 updateExactStock(id, newValue) {
                     const val = Number(newValue);
                     if(isNaN(val) || val < 0) return alert('จำนวนสต็อกไม่ถูกต้อง');
@@ -775,6 +910,7 @@
                         this.logActivity('แก้ไขสินค้า', `ปรับสต็อก "${prod.name}" เป็น ${val} ชิ้น (พิมพ์แก้ไข)`);
                     }
                 },
+                
                 editProductFromTable(prod) {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     this.quickEdit.category = prod.category || 'ทั่วไป';
@@ -789,14 +925,13 @@
                     }, 50);
                 },
 
-                // คำนวณราคาสินค้ารองรับทศนิยม
                 updateItemPrice(item) {
                     if (item.wholesaleQty > 0) {
                         const bundles = Math.floor(item.qty / item.wholesaleQty);
-                        const remainder = Number((item.qty - (bundles * item.wholesaleQty)).toFixed(3)); // รองรับทศนิยม
-                        item.lineTotal = Number(((bundles * item.wholesaleQty * item.wholesalePrice) + (remainder * item.originalPrice)).toFixed(2));
+                        const remainder = item.qty % item.wholesaleQty;
+                        item.lineTotal = (bundles * item.wholesaleQty * item.wholesalePrice) + (remainder * item.originalPrice);
                     } else {
-                        item.lineTotal = Number((item.originalPrice * item.qty).toFixed(2));
+                        item.lineTotal = item.originalPrice * item.qty;
                     }
                 },
 
@@ -818,7 +953,7 @@
                         wholesaleQty: 0,
                         wholesalePrice: 0,
                         qty: Number(this.manualItem.qty),
-                        lineTotal: Number((Number(this.manualItem.price) * Number(this.manualItem.qty)).toFixed(2))
+                        lineTotal: Number(this.manualItem.price) * Number(this.manualItem.qty)
                     });
                     this.manualItem = { name: '', price: '', qty: 1 };
                 },
@@ -1002,7 +1137,6 @@
 
                 validateQty(index) {
                     const item = this.bill.items[index];
-                    // ถ้าผู้ใช้พิมพ์ช่องว่าง หรือเลขติดลบ ให้เซ็ตเป็น 1
                     if (item.qty === undefined || item.qty === null || item.qty === '' || item.qty <= 0 || isNaN(item.qty)) { 
                         item.qty = 1; 
                     }
